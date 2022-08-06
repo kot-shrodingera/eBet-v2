@@ -1,0 +1,6 @@
+venv
+logs
+profiles
+__pycache__
+*.code-workspace
+settings.ini

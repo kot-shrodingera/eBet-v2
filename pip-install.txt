@@ -1,0 +1,10 @@
+Python 3.8/3.9
+
+pip install requests python_ghost_cursor python-timeout python-printr websocket-client astor cachetools docopt pywin32
+
+
+Python 3.10
+
+pip install numpy scipy
+$env:BEZIER_NO_EXTENSION='true'; pip install bezier==2020.1.14; Remove-Item Env:\BEZIER_NO_EXTENSION
+pip install requests python_ghost_cursor python-timeout python-printr websocket-client astor cachetools docopt pywin32
