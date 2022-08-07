@@ -14,6 +14,14 @@ receipt_done_button_selector = '.bss-ReceiptContent_Done'
 
 def place_bet(self: Workflow) -> bool:
     logger.log('Placing Bet')
+
+    if self.settings.placed_bet_to_place_delay is not None and self.bet_placed_time:
+        timedelta = datetime.now() - self.bet_placed_time
+        delay = self.settings.placed_bet_to_place_delay - timedelta.seconds + timedelta.microseconds / 1000000
+        if delay > 0:
+            logger.log(f'Placed Bet to Place delay: {delay:.2f} seconds')
+            sleep(delay)
+
     self.place_bet_start = datetime.now()
     place_bet_button = self.browser.node('Place Bet Button', place_bet_button_selector)
     place_bet_button.click()

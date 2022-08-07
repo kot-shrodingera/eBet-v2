@@ -33,6 +33,8 @@ class Settings:
     dont_place_bets: bool
     mouse_path_shrink: float
     pause_on_porez: bool
+    placed_bet_to_open_delay: Union[float, None]
+    placed_bet_to_place_delay: Union[float, None]
 
     def __init__(self, settings_file_name: str) -> None:
         settings = ConfigParser()
@@ -94,6 +96,8 @@ class Settings:
         set_property('dont_place_bets', 'dont_place_bets', bool, default=False)
         set_property('mouse_path_shrink', 'mouse_path_shrink', float, default=1)
         set_property('pause_on_porez', 'pause_on_porez', bool, default=True)
+        set_property('placed_bet_to_open_delay', 'placed_bet_to_open_delay', float, required=False)
+        set_property('placed_bet_to_place_delay', 'placed_bet_to_place_delay', float, required=False)
         
         if not 'chrome_binary_path' in settings['Settings']:
             standard_paths = [

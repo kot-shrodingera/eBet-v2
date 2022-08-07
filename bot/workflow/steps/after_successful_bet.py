@@ -11,10 +11,10 @@ from ...errors import BotError
 
 
 def after_successful_bet(self: Workflow) -> None:
-    now = datetime.now()
+    self.bet_placed_time = datetime.now()
     self.bet_open_duration = self.place_bet_start - self.open_bet_start
-    self.bet_accept_duration = now - self.place_bet_start
-    self.bet_full_duration = now - self.open_bet_start
+    self.bet_accept_duration = self.bet_placed_time - self.place_bet_start
+    self.bet_full_duration = self.bet_placed_time - self.open_bet_start
     
     self.result_coefficient = bet365.get_coefficient(self.browser)
     logger.log(f'Result Coefficient: {self.result_coefficient}')

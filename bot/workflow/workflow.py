@@ -52,6 +52,7 @@ class Workflow:
     start_time: datetime
     open_bet_start: datetime
     place_bet_start: datetime
+    bet_placed_time: Union[datetime, None] = None
     
     bet_open_duration: timedelta
     bet_accept_duration: timedelta
@@ -180,8 +181,9 @@ class Workflow:
                     continue
                 
                 if steps.place_bet(self):
-                    logger.log(f'Waiting {self.settings.delay} seconds')
-                    sleep(self.settings.delay)
+                    if self.settings.delay > 0:
+                        logger.log(f'Waiting {self.settings.delay} seconds')
+                        sleep(self.settings.delay)
                 else:
                     sleep(1)
                 

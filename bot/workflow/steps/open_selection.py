@@ -1,4 +1,5 @@
 from time import sleep
+from datetime import datetime
 
 from .. import Workflow, bet365
 
@@ -23,6 +24,14 @@ def open_selection(self: Workflow) -> None:
     if not selection_button:
         raise BotError('Selection Button not found')
     selection_button = self.browser.node('Selection Button', remote_object_id=selection_button)
+    
+    if self.settings.placed_bet_to_open_delay is not None and self.bet_placed_time:
+        timedelta = datetime.now() - self.bet_placed_time
+        delay = self.settings.placed_bet_to_open_delay - timedelta.seconds + timedelta.microseconds / 1000000
+        if delay > 0:
+            logger.log(f'Placed Bet to Open delay: {delay:.2f} seconds')
+            sleep(delay)
+    
     selection_button.click()
 
     self.browser.node('Betslip', betslip_selector, not_found_error='Betslip not opened')
