@@ -1,3 +1,4 @@
+from .get_balance import Balance as Balance
 from .get_balance import get_balance as get_balance
 from .get_selection_button import get_selection_button as get_selection_button
 from .get_coefficient import get_coefficient as get_coefficient

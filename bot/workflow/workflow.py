@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from time import sleep
 
 from .classes import PlacedBets, BetDetails
-from .bet365.get_balance import Balance
+from . import bet365
 
 from .. import logger
 from ..settings import Settings
@@ -43,7 +43,7 @@ class Workflow:
 
     initial_coefficient: float
     initial_parameter: Union[float, None]
-    balance_before_place_bet: Balance
+    balance_before_place_bet: bet365.Balance
     
     result_coefficient: float
     result_parameter: Union[float, None]
@@ -153,6 +153,10 @@ class Workflow:
                 steps.set_target_bet(self)
                 if not self.target_bet:
                     continue
+                
+                current_balance = bet365.get_balance(self.browser)
+                if current_balance['balance'] < self.settings.stake:
+                    raise BotError('Balance is less than stake')
                 
                 steps.open_event(self)
                 
