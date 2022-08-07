@@ -40,7 +40,7 @@ def set_target_bet(self: Workflow) -> None:
         query_data = {
             'api[method]': 'get_forks',
             'api[version]': '2',
-            'get_progrev_bets': '1' if self.warm_up or self.settings.all_bets else '0',
+            'get_progrev_bets': '1' if self.warm_up or self.settings.request_all_bets else '0',
             # 'bk_login': self.settings.username,
             # 'balance': str(balance['balance']),
             # # 'currency': balance['currency'],

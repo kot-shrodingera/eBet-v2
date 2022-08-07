@@ -10,31 +10,31 @@ class Settings:
     api_password: str
     username: str
     password: str
+    chrome_binary_path: str
+    
+    bet365_url: str
     stake: float
     stake_type: str
     stake_max: Union[float, None]
-    bet365_url: str
-    limit: int
-    delay: float
+    
     max_same_bets_count: int
     max_event_bets_count: int
-    chrome_binary_path: str
-    proxy_enable: int
-    proxy_ip: Union[str, None]
-    proxy_port: Union[str, None]
-    proxy_login: Union[str, None]
-    proxy_pass: Union[str, None]
     warm_up_bets_limit: Union[int, None]
-    all_bets: bool
-    window_width: Union[int, None]
-    window_height: Union[int, None]
-    browser_restart_interval: Union[int, None]
-    mouse_logs_mode: int
-    dont_place_bets: bool
-    mouse_path_shrink: float
-    pause_on_porez: bool
+    
+    placed_bet_to_new_try_delay: Union[float, None]
     placed_bet_to_open_delay: Union[float, None]
     placed_bet_to_place_delay: Union[float, None]
+    
+    browser_restart_interval: Union[int, None]
+    mouse_path_shrink: float
+    
+    window_width: Union[int, None]
+    window_height: Union[int, None]
+    mouse_logs_mode: int
+    placed_bets_limit: Union[int, None]
+    request_all_bets: bool
+    dont_place_bets: bool
+    dont_pause_on_porez: bool
 
     def __init__(self, settings_file_name: str) -> None:
         settings = ConfigParser()
@@ -72,32 +72,30 @@ class Settings:
         set_property('api_password', 'api_password')
         set_property('username', 'username')
         set_property('password', 'password')
+        
+        set_property('bet365_url', 'bet365_url', default='https://www.bet365.com/') # TODO: URL validation
         set_property('stake', 'stake', float)
-        set_property('stake_type', 'stake_type', default='fixed')
+        set_property('stake_type', 'stake_type', default='fixed') # TODO: validation ['fixed', 'percent']
         set_property('stake_max', 'stake_max', float, required=False)
-        # TODO: URL validation
-        set_property('bet365_url', 'bet365_url', default='https://www.bet365.com/')
-        set_property('limit', 'limit', int)
-        set_property('delay', 'delay', float)
+        
         set_property('max_same_bets_count', 'max_same_bets_count', int)
         set_property('max_event_bets_count', 'max_event_bets_count', int)
-        # TODO: proxy validation
-        set_property('proxy_enable', 'proxy_enable', int, default=0)
-        set_property('proxy_ip', 'proxy_ip', required=False)
-        set_property('proxy_port', 'proxy_port', required=False)
-        set_property('proxy_login', 'proxy_login', required=False)
-        set_property('proxy_pass', 'proxy_pass', required=False)
-        set_property('warm_up_bets_limit', 'progrev_open_bets_limit', int, required=False)
-        set_property('window_width', 'window_width', int, required=False)
-        set_property('window_height', 'window_height', int, required=False)
-        set_property('all_bets', 'all_bets', bool, default=False)
-        set_property('browser_restart_interval', 'browser_restart_interval', int, required=False)
-        set_property('mouse_logs_mode', 'mouse_logs_mode', int, default=1)
-        set_property('dont_place_bets', 'dont_place_bets', bool, default=False)
-        set_property('mouse_path_shrink', 'mouse_path_shrink', float, default=1)
-        set_property('pause_on_porez', 'pause_on_porez', bool, default=True)
+        set_property('warm_up_bets_limit', 'warm_up_bets_limit', int, required=False)
+        
+        set_property('placed_bet_to_new_try_delay', 'placed_bet_to_new_try_delay', float)
         set_property('placed_bet_to_open_delay', 'placed_bet_to_open_delay', float, required=False)
         set_property('placed_bet_to_place_delay', 'placed_bet_to_place_delay', float, required=False)
+        
+        set_property('browser_restart_interval', 'browser_restart_interval', int, required=False)
+        set_property('mouse_path_shrink', 'mouse_path_shrink', float, default=1) # TODO: validate [0.0 - 1.0]
+        
+        set_property('window_width', 'window_width', int, required=False)
+        set_property('window_height', 'window_height', int, required=False)
+        set_property('mouse_logs_mode', 'mouse_logs_mode', int, default=1) # TODO: validate [0, 1, 2]
+        set_property('placed_bets_limit', 'placed_bets_limit', int, required=False)
+        set_property('request_all_bets', 'request_all_bets', bool, default=False)
+        set_property('dont_place_bets', 'dont_place_bets', bool, default=False)
+        set_property('dont_pause_on_porez', 'dont_pause_on_porez', bool, default=False)
         
         if not 'chrome_binary_path' in settings['Settings']:
             standard_paths = [
@@ -109,8 +107,9 @@ class Settings:
             except StopIteration:
                 raise Exception('No chrome_binary_path in settings file, and cannot find it in standart paths')
         else:
-            #TODO: check if binary exist
             self.chrome_binary_path = settings['Settings']['chrome_binary_path']
+            if not os.path.exists(self.chrome_binary_path):
+                raise Exception(f'Chrome executable not exists: {self.chrome_binary_path}')
     
     def __repr__(self) -> str:
         return json.dumps(self.__dict__, indent=2)

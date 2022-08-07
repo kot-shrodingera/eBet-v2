@@ -19,7 +19,6 @@ class Bot:
     
     ebet_auth_token: str
     first_launch: bool
-    using_proxy: bool
     
     start_time = datetime.now()
     placed_bets_count: int = 0
@@ -42,9 +41,6 @@ class Bot:
         if self.settings.window_width and self.settings.window_height:
             additional_options.append(f'--window-size={self.settings.window_width},{self.settings.window_height}')
              
-        self.using_proxy = self.settings.proxy_enable != 0 and self.settings.proxy_ip != None and self.settings.proxy_port != None and self.settings.proxy_login != None and self.settings.proxy_pass != None
-        if self.using_proxy:
-            additional_options.append(f'--proxy-server={self.settings.proxy_ip}:{self.settings.proxy_port}')
             
         while True:
             
@@ -52,21 +48,10 @@ class Bot:
             with ChromeContext(binary=f'"{self.settings.chrome_binary_path}"', additional_options=additional_options) as crdi:
                 self.browser = Browser(crdi, self.settings.mouse_logs_mode, self.settings.mouse_path_shrink)
                 
-                if self.using_proxy:
-                    logger.header('Using Proxy')
-                    self.browser.crdi.get('https://browserleaks.com/ip') # pyright: reportUnknownMemberType=false
-                    logger.log(f'Check proxy')
-                    logger.log(f'Login: {self.settings.proxy_login}')
-                    logger.log(f'Password: {self.settings.proxy_pass}')
-                    logger.log('Press Enter to continue, or type q to quit')
-                    choice = input()
-                    if choice.lower() == 'q':
-                        return
-                
                 if self.first_launch:
                     self.first_launch = False
                     logger.header('First Launch')
-                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml')
+                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml') # pyright: ignore [reportUnknownMemberType]
                     logger.log('1) Install extension')
                     logger.log('2) Set last option (IP handling policy: Disable non-proxied UDP (force proxy))')
                     logger.log('3) Close extension settings modal')

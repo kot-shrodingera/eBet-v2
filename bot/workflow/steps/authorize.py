@@ -67,6 +67,7 @@ def authorize(self: Workflow) -> None:
     
     if not bet365.check_cashout_tab(self.browser):
         self.porez = True
-        if self.settings.pause_on_porez:
-            self.need_exit = True
-            raise BotError('Pause on Porez')
+        if self.settings.dont_pause_on_porez:
+            return
+        self.need_exit = True
+        raise BotError('Pause on Porez')

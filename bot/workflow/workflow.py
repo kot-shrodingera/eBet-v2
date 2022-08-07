@@ -118,7 +118,7 @@ class Workflow:
                         logger.log(f'Control: {current_action}')
             
             
-        if self.need_exit or self.settings.limit == 0:
+        if self.need_exit or self.settings.placed_bets_limit == 0:
             logger.log('End')
             return False
         logger.write_log(self.bet_tries_count)
@@ -182,9 +182,10 @@ class Workflow:
                     continue
                 
                 if steps.place_bet(self):
-                    if self.settings.delay > 0:
-                        logger.log(f'Waiting {self.settings.delay} seconds')
-                        sleep(self.settings.delay)
+                    delay = self.settings.placed_bet_to_new_try_delay
+                    if delay and delay > 0:
+                        logger.log(f'Waiting {delay} seconds')
+                        sleep(delay)
                 else:
                     sleep(1)
                 
@@ -211,7 +212,7 @@ class Workflow:
                     if current_action != self.control.get_current_action():
                         current_action = self.control.current_action
                         logger.log(f'Control: {current_action}')
-                if self.need_exit or (self.settings.limit != -1 and self.placed_bets_count >= self.settings.limit):
+                if self.need_exit or (self.settings.placed_bets_limit and self.settings.placed_bets_limit != -1 and self.placed_bets_count >= self.settings.placed_bets_limit):
                     return False
                 if self.settings.browser_restart_interval is not None and (datetime.now() - self.start_time).seconds > self.settings.browser_restart_interval:
                     return (self.placed_bets_count, self.bet_tries_count)
