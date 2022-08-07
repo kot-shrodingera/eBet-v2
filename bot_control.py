@@ -25,7 +25,9 @@ def init() -> None:
         key = get_key(['r', 'q'])
         if key == 'r':
             set_action('running')
-            subprocess.Popen(['./venv/python3.8/Scripts/python.exe', './main.py'], creationflags=subprocess.CREATE_NEW_CONSOLE)
+            python_vev_path = './venv/python3.8/Scripts/python.exe'
+            python_path = python_vev_path if os.path.exists(python_vev_path) else 'python.exe'
+            subprocess.Popen([python_path, './main.py'], creationflags=subprocess.CREATE_NEW_CONSOLE)
             running()
             return
         elif key == 'q':
