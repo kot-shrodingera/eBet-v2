@@ -6,12 +6,8 @@ from ...browser import Browser, cr_exceptions
 
 
 placed_selector = '.bss-ReceiptContent_Title'
-error_selector = '.lqb-QuickBetHeader_HasMessage .lqb-QuickBetHeader_MessageBody, .bs-OpportunityChangeErrorMessage, .bss-StandardBetslip_Error'
+error_selector = '.bs-DefaultMessage_MessageText, .bs-OpportunityChangeErrorMessage, .bss-StandardBetslip_Error'
 result_selector = f'{placed_selector}, {error_selector}'
-
-bet_placed_class = 'bss-ReceiptContent_Title'
-odds_changed_class = 'bs-OpportunityChangeErrorMessage'
-deposit_required_class = 'qd-QuickDepositModule'
 
 def get_place_bet_result(browser: Browser) -> str:
     result_message = browser.node('Result', result_selector, 15000)
@@ -25,9 +21,12 @@ def get_place_bet_result(browser: Browser) -> str:
             error_text = error.get_property('textContent')
             logger.log(error_text)
             
+            account_restricted_regex = r'Certain restrictions may be applied to your account. If you have an account balance you can request to withdraw these funds now by going to the Withdrawal page in Members.'
             selection_changed_regex = r'The line and price of your selection changed|The price and availability of your selection changed|The availability of your selection changed|The selection is no longer available|The price of your selection changed|The price of your selection has changed|The line, odds or availability of your selections has changed.|The line, odds or availability of selections on your betslip has changed. Please review your betslip|La linea, le quote o la disponibilità delle tue selezioni è cambiata.'
             check_my_bets_regex = r'Please check My Bets for confirmation that your bet has been successfully placed.'
             
+            if re.search(account_restricted_regex, error_text):
+                return 'Account Restricted'
             if re.search(selection_changed_regex, error_text):
                 return 'Odds Changed'
             if re.search(check_my_bets_regex, error_text):
