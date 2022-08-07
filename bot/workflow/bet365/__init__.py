@@ -6,3 +6,4 @@ from .get_place_bet_result import get_place_bet_result as get_place_bet_result
 from .close_popups import close_popups as close_popups
 from .get_unsettled_bets_count import get_unsettled_bets_count as get_unsettled_bets_count
 from .check_cashout_tab import check_cashout_tab as check_cashout_tab
+from .get_score import get_score as get_score
