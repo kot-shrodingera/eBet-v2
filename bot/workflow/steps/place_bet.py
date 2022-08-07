@@ -22,6 +22,7 @@ def place_bet(self: Workflow) -> bool:
         if delay > 0:
             logger.log(f'Placed Bet to Place delay: {delay:.2f} seconds')
             sleep(delay)
+            check_bet(self)
 
     self.place_bet_start = datetime.now()
     place_bet_button = self.browser.node('Place Bet Button', place_bet_button_selector)
