@@ -40,7 +40,10 @@ def place_bet(self: Workflow) -> bool:
         return True
     
     if place_bet_result == 'Check My Bets':
-        input()
+        pass
+    
+    if place_bet_result == 'Logout':
+        pass
 
     logger.log(place_bet_result)
     return False
