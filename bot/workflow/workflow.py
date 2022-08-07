@@ -102,21 +102,22 @@ class Workflow:
                 logger.log(f'[ERROR]: {str(error)}')
             except Exception:
                 logger.log(traceback.format_exc())
-            
-            
-        current_action = self.control.get_current_action()
-        logger.log(f'Control: {current_action}')
-        while current_action != 'running':
-            if current_action == 'stop':
-                return False
-            if current_action == 'pause':
-                pass
-            else:
-                logger.log(f'Unknown action: {current_action}')
-            sleep(1)
-            if current_action != self.control.get_current_action():
-                current_action = self.control.current_action
+            finally:
+                current_action = self.control.get_current_action()
                 logger.log(f'Control: {current_action}')
+                while current_action != 'running':
+                    if current_action == 'stop':
+                        return False
+                    if current_action == 'pause':
+                        pass
+                    else:
+                        logger.log(f'Unknown action: {current_action}')
+                    sleep(1)
+                    if current_action != self.control.get_current_action():
+                        current_action = self.control.current_action
+                        logger.log(f'Control: {current_action}')
+            
+            
         if self.need_exit or self.settings.limit == 0:
             logger.log('End')
             return False
