@@ -45,9 +45,9 @@ class Node:
                     object_id = None
                 else:
                     object_id = result['result']['result']['objectId']
-            except Exception:
-                log('\n')
-                raise Exception(f'Error constructing node "{name}"')
+            except Exception as e:
+                log(f'Error constructing node "{name}"')
+                raise e
 
             end_time = datetime.now()
             diff = end_time - start_time
@@ -74,8 +74,10 @@ class Node:
             #     log(f'Node "{self.name}" [{self.remote_object_id}] has no property {property_name}')
             #     return None
             return str(property['value']['value'])
-        except Exception:
-            raise Exception(f'Error getting property {property_name} of node "{self.name}" [{self.remote_object_id}]')
+        except Exception as e:
+            log(f'Error getting property {property_name} of node "{self.name}" [{self.remote_object_id}]')
+            print(type(e))
+            raise e
 
     def get_class_list(self) -> Union[List[str], None]:
         try:
@@ -88,8 +90,9 @@ class Node:
             if not class_list_property:
                 return None
             return str(class_list_property['value']['value']).strip().split()
-        except Exception:
-            raise Exception(f'Error getting class list of node "{self.name}" [{self.remote_object_id}]')
+        except Exception as e:
+            log(f'Error getting class list of node "{self.name}" [{self.remote_object_id}]')
+            raise e
     
     def get_box_model(self) -> Any:
         try:
@@ -97,8 +100,9 @@ class Node:
             # getBoundingClientRect()
             # left-top, right-top, right-bottom, left-bottom
             return result['result']['model']
-        except Exception:
-            raise Exception(f'Error getting box model of node "{self.name}" [{self.remote_object_id}]')
+        except Exception as e:
+            log(f'Error getting box model of node "{self.name}" [{self.remote_object_id}]')
+            raise e
 
     def click(self, container_css_selector: Union[str, None] = None) -> None:
         start_time = datetime.now()
@@ -222,8 +226,9 @@ class Node:
             self.browser.crdi.x_coordinate = element_x_coordinate
             self.browser.crdi.y_coordinate = current_y_coordinate
             
-        except Exception:
-            raise Exception(f'Error clicking node "{self.name}" [{self.remote_object_id}]')
+        except Exception as e:
+            log(f'Error clicking node "{self.name}" [{self.remote_object_id}]')
+            raise e
         finally:
             end_time = datetime.now()
             diff = end_time - start_time
