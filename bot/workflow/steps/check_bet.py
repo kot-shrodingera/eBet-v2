@@ -44,5 +44,5 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
     if not self.target_bet['score2'].isnumeric():
         raise BotError(f'score2 in target bet is not numeric: {target_score2}')
     
-    if first_score != int(target_score1) or first_score != int(target_score2):
+    if first_score != int(target_score1) or second_score != int(target_score2):
         raise BotError(f'Not target score {target_score1}-{target_score2}')
