@@ -1,6 +1,8 @@
 from datetime import datetime
 from typing import Union, List, Any
 
+from ..errors import BotError
+
 from .ChromeController import ChromeRemoteDebugInterface # pyright: reportUnknownVariableType=false
 from ..logger import log
 
@@ -54,3 +56,27 @@ class Browser:
                     remote_object_id=remote_object_id,
                     required=required,
                     not_found_error=not_found_error)
+    
+    # Get result object or string error
+    def process_js_return(self, result: Any, node_name: str):
+        if 'type' in result and result['type'] == 'undefined':
+            # TODO: Error handling
+            pass
+        elif 'result' in result and 'result' in result['result']:
+            result = result['result']['result']
+            if 'objectId' in result and 'subtype' in result and result['subtype'] == 'node':
+                # log('Result is node objectId')
+                return self.node(node_name, remote_object_id=result['objectId'])
+            if 'type' in result and result['type'] == 'string' and 'value' in result:
+                # log('Result is string')
+                string: str = result['value']
+                return string
+            if 'subtype' in result and result['subtype'] == 'error':
+                # log('Result is error')
+                if 'description' in result:
+                    description = str(result['description']).replace('\\n', '\n')
+                    raise BotError(f'Error in js function: {description}')
+                else:
+                    raise BotError(f'Error in js function: no description')
+        log(result)
+        raise BotError('Cannot get result from js function')
