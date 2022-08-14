@@ -9,3 +9,4 @@ from .check_bet import check_bet as check_bet
 from .set_balance_before_place_bet import set_balance_before_place_bet as set_balance_before_place_bet
 from .place_bet import place_bet as place_bet
 from .after_successful_bet import after_successful_bet as after_successful_bet
+from .update_stats import update_stats as update_stats

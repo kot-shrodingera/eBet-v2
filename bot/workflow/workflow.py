@@ -66,7 +66,6 @@ class Workflow:
     
     porez = False
     restrict = False
-    need_exit = False
     
     def __init__(self, settings: Settings, ebet_auth_token:str, browser: Browser, control: Control, bot_version: str, bot_start_time: datetime, bot_placed_bets_count: int, bot_bet_tries_count: int) -> None:
         self.settings = settings
@@ -92,127 +91,110 @@ class Workflow:
 
     def run(self) -> Union[bool, Tuple[int, int]]: # result is need_restart
         from . import steps
-        
-        # TODO: Page reload if initialize failed
-        while True:
-            try:
-                steps.initialize(self)
-                break
-            except BotError as error:
-                logger.log(f'[ERROR]: {str(error)}')
-            except Exception:
-                logger.log(traceback.format_exc())
-            finally:
-                current_action = self.control.get_current_action()
-                logger.log(f'Control: {current_action}')
-                while current_action != 'running':
-                    if current_action == 'stop':
-                        return False
-                    if current_action == 'pause':
-                        pass
-                    else:
-                        logger.log(f'Unknown action: {current_action}')
-                    sleep(1)
-                    if current_action != self.control.get_current_action():
-                        current_action = self.control.current_action
-                        logger.log(f'Control: {current_action}')
-            
-            
-        if self.need_exit or self.settings.placed_bets_limit == 0:
-            logger.log('End')
-            return False
-        logger.write_log(self.bet_tries_count)
 
         while True:
             try:
-                self.bet_tries_count += 1
-            
-                bot_work_time = datetime.now() - self.bot_start_time
-                seconds = bot_work_time.seconds
-                hours = seconds // 3600 + 24 * bot_work_time.days
-                seconds = seconds - (hours * 3600)
-                minutes = seconds // 60
-                seconds = seconds - (minutes * 60)
-                bot_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
+                if (self.porez and not self.settings.dont_pause_on_porez) or self.restrict:
+                    self.control.set_current_action('pause')
+    
+                current_action = self.control.get_current_action()
+                logger.log(f'Control: {current_action}')
                 
-                workflow_work_time = datetime.now() - self.start_time
-                seconds = workflow_work_time.seconds
-                hours = seconds // 3600 + 24 * workflow_work_time.days
-                seconds = seconds - (hours * 3600)
-                minutes = seconds // 60
-                seconds = seconds - (minutes * 60)
-                workflow_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
+                if current_action == 'pause':
+                    self.control.set_current_action('paused')
+                    while self.control.get_current_action() == 'paused':
+                        steps.update_stats(self)
+                        sleep(60)
+                elif current_action == 'init':
+                    steps.initialize(self)
+                    logger.write_log(self.bet_tries_count)
+                    if self.settings.placed_bets_limit == 0:
+                        return False
+                    self.control.set_current_action('running')
+                elif current_action == 'running':
+                    self.bet_tries_count += 1
                 
-                if self.warm_up:
-                    logger.header(f'Bet Try №{self.bet_tries_count} (Warm Up: {self.warm_up_bets_count} of {self.settings.warm_up_bets_limit}) ({workflow_work_time_string}|{bot_work_time_string})')
-                else:
-                    logger.header(f'Bet Try №{self.bet_tries_count}|{self.bot_bet_tries_count + self.bet_tries_count} (Placed bets: {self.placed_bets_count}|{self.bot_placed_bets_count + self.placed_bets_count}) ({workflow_work_time_string}|{bot_work_time_string})')
-                
-                steps.authorize(self)
-                
-                steps.clear_betslip(self)
-                
-                steps.set_target_bet(self)
-                if not self.target_bet:
-                    continue
-                
-                current_balance = bet365.get_balance(self.browser)
-                if current_balance['balance'] < self.settings.stake:
-                    raise BotError('Balance is less than stake')
-                
-                steps.open_event(self)
-                
-                steps.open_selection(self)
-                
-                if self.warm_up:
-                    self.warm_up_bets_count += 1
-                    logger.log(f'Warm Up bet openned ({self.warm_up_bets_count} of {self.settings.warm_up_bets_limit})')
-                    sleep(1)
+                    bot_work_time = datetime.now() - self.bot_start_time
+                    seconds = bot_work_time.seconds
+                    hours = seconds // 3600 + 24 * bot_work_time.days
+                    seconds = seconds - (hours * 3600)
+                    minutes = seconds // 60
+                    seconds = seconds - (minutes * 60)
+                    bot_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
+                    
+                    workflow_work_time = datetime.now() - self.start_time
+                    seconds = workflow_work_time.seconds
+                    hours = seconds // 3600 + 24 * workflow_work_time.days
+                    seconds = seconds - (hours * 3600)
+                    minutes = seconds // 60
+                    seconds = seconds - (minutes * 60)
+                    workflow_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
+                    
+                    if self.warm_up:
+                        logger.header(f'Bet Try №{self.bet_tries_count} (Warm Up: {self.warm_up_bets_count} of {self.settings.warm_up_bets_limit}) ({workflow_work_time_string}|{bot_work_time_string})')
+                    else:
+                        logger.header(f'Bet Try №{self.bet_tries_count}|{self.bot_bet_tries_count + self.bet_tries_count} (Placed bets: {self.placed_bets_count}|{self.bot_placed_bets_count + self.placed_bets_count}) ({workflow_work_time_string}|{bot_work_time_string})')
+                    
+                    steps.authorize(self)
+                    
                     steps.clear_betslip(self)
-                    continue
-                
-                steps.set_stake_value(self)
-                
-                steps.set_balance_before_place_bet(self)
-                
-                steps.check_bet(self, initial=True)
-                
-                if self.settings.dont_place_bets:
-                    logger.log('Bet placing disabled')
-                    continue
-                
-                if steps.place_bet(self):
-                    delay = self.settings.placed_bet_to_new_try_delay
-                    if delay and delay > 0:
-                        logger.log(f'Waiting {delay} seconds')
-                        sleep(delay)
+                    
+                    steps.set_target_bet(self)
+                    if not self.target_bet:
+                        continue
+                    
+                    current_balance = bet365.get_balance(self.browser)
+                    if current_balance['balance'] < self.settings.stake:
+                        raise BotError('Balance is less than stake')
+                    
+                    steps.open_event(self)
+                    
+                    steps.open_selection(self)
+                    
+                    if self.warm_up:
+                        self.warm_up_bets_count += 1
+                        logger.log(f'Warm Up bet openned ({self.warm_up_bets_count} of {self.settings.warm_up_bets_limit})')
+                        sleep(1)
+                        steps.clear_betslip(self)
+                        continue
+                    
+                    steps.set_stake_value(self)
+                    
+                    steps.set_balance_before_place_bet(self)
+                    
+                    steps.check_bet(self, initial=True)
+                    
+                    if self.settings.dont_place_bets:
+                        logger.log('Bet placing disabled')
+                        continue
+                    
+                    if steps.place_bet(self):
+                        delay = self.settings.placed_bet_to_new_try_delay
+                        if delay and delay > 0:
+                            logger.log(f'Waiting {delay} seconds')
+                            sleep(delay)
+                    else:
+                        sleep(1)
+                elif current_action == 'stop':
+                    return False
                 else:
-                    sleep(1)
+                    logger.log(f'Unknown action: {current_action}')
+                    while current_action == self.control.get_current_action():
+                        sleep(1)
                 
             except BotError as error:
                 logger.log(f'[ERROR]: {str(error)}')
             except (cr_exceptions.ChromeControllerException, ConnectionAbortedError, AssertionError):
                 logger.log('Chrome Died')
                 logger.log(traceback.format_exc())
-                self.need_exit = True
+                logger.write_log(self.bet_tries_count)
+                return False
             except Exception:
                 logger.log(traceback.format_exc())
             finally:
                 logger.write_log(self.bet_tries_count)
-                current_action = self.control.get_current_action()
-                logger.log(f'Control: {current_action}')
-                while current_action != 'running':
-                    if current_action == 'stop':
-                        return False
-                    if current_action == 'pause':
-                        pass
-                    else:
-                        logger.log(f'Unknown action: {current_action}')
-                    sleep(1)
-                    if current_action != self.control.get_current_action():
-                        current_action = self.control.current_action
-                        logger.log(f'Control: {current_action}')
-                if self.need_exit or (self.settings.placed_bets_limit and self.settings.placed_bets_limit != -1 and self.placed_bets_count >= self.settings.placed_bets_limit):
-                    return False
-                if self.settings.browser_restart_interval is not None and (datetime.now() - self.start_time).seconds > self.settings.browser_restart_interval:
+                if self.settings.placed_bets_limit and self.placed_bets_count >= self.settings.placed_bets_limit:
+                    logger.log('Placed Bets Limit has been reached. Pausing')
+                    self.control.set_current_action('pause')
+                elif self.settings.browser_restart_interval is not None and (datetime.now() - self.start_time).seconds > self.settings.browser_restart_interval:
                     return (self.placed_bets_count, self.bet_tries_count)

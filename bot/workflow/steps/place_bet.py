@@ -50,7 +50,7 @@ def place_bet(self: Workflow) -> bool:
         return True
     
     if place_bet_result == 'Account Restricted':
-        self.need_exit = True
+        self.restrict = True
         raise BotError('Account Restricted')
     
     if place_bet_result == 'Check My Bets':

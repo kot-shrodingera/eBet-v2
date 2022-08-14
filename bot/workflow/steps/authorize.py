@@ -69,5 +69,4 @@ def authorize(self: Workflow) -> None:
         self.porez = True
         if self.settings.dont_pause_on_porez:
             return
-        self.need_exit = True
         raise BotError('Pause on Porez')
