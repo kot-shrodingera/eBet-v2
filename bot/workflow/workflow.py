@@ -44,6 +44,7 @@ class Workflow:
     initial_coefficient: float
     initial_parameter: Union[float, None]
     balance_before_place_bet: bet365.Balance
+    target_stake_value: float
     
     result_coefficient: float
     result_parameter: Union[float, None]

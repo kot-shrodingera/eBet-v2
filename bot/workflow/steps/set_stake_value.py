@@ -29,11 +29,11 @@ def set_stake_value(self: Workflow) -> None:
     
     if 'stake_sum_multiplier' in self.target_bet:
         stake_sum_multiplier = float(self.target_bet['stake_sum_multiplier'])
-        target_stake_value = round(stake_sum_multiplier * base_target_stake_value, 2)
-        logger.log(f'Setting Stake Value ({stake_sum_multiplier} * {base_target_stake_value} = {target_stake_value})')
+        self.target_stake_value = round(stake_sum_multiplier * base_target_stake_value, 2)
+        logger.log(f'Setting Stake Value ({stake_sum_multiplier} * {base_target_stake_value} = {self.target_stake_value})')
     else:
-        target_stake_value = base_target_stake_value
-        logger.log(f'Setting Stake Value ({target_stake_value})')
+        self.target_stake_value = base_target_stake_value
+        logger.log(f'Setting Stake Value ({self.target_stake_value})')
     
     
     stake_value = get_stake_value(self.browser)
@@ -42,7 +42,7 @@ def set_stake_value(self: Workflow) -> None:
         stake_value_input_empty = self.browser.node('Stake Value Input Empty', stake_value_input_empty_selector)
         stake_value_input_empty.click()
     else:
-        if stake_value == target_stake_value:
+        if stake_value == self.target_stake_value:
             logger.log('Stake Value is already set')
             return
         logger.log(f'Current stake: {stake_value}. Clearing')
@@ -56,10 +56,10 @@ def set_stake_value(self: Workflow) -> None:
     if stake_value != 0:
         raise BotError(f'Could not clear stake value ({stake_value})')
     
-    self.browser.crdi.send(str(target_stake_value)) # pyright: reportUnknownMemberType=false
+    self.browser.crdi.send(str(self.target_stake_value)) # pyright: reportUnknownMemberType=false
     sleep(0.1)
     stake_value = get_stake_value(self.browser)
-    if stake_value != target_stake_value:
+    if stake_value != self.target_stake_value:
         raise BotError(f'Could not set stake value ({stake_value})')
 
     remember_stake_value_button = self.browser.node('Remember Stake Value Button', remember_stake_value_button_selector)

@@ -11,7 +11,7 @@ def send_placed_bet(self: Workflow) -> None:
         'balance_before_place_bet': self.balance_before_place_bet['balance'],
         'currency': self.balance_before_place_bet['currency'],
         'bet_amount_initial': self.settings.stake,
-        'bet_amount_result': self.settings.stake,
+        'bet_amount_result': self.target_stake_value,
         'coefficient_initial': self.initial_coefficient,
         'coefficient_result': self.result_coefficient,
         'parameter_initial': self.initial_parameter,
