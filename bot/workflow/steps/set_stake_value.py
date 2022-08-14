@@ -65,9 +65,21 @@ def set_stake_value(self: Workflow) -> None:
     remember_stake_value_button = self.browser.node('Remember Stake Value Button', remember_stake_value_button_selector)
     
     remember_stake_value_button_class_list = remember_stake_value_button.get_class_list()
-    if remember_stake_value_button_class_list and remember_stake_value_button_active_class in remember_stake_value_button_class_list:
-        logger.log('Remember Stake Value Button is active')
+    
+    if remember_stake_value_button_class_list is None:
+        pass # TODO: Error handling
+
+    if self.settings.stake_type == 'fixed':
+        if remember_stake_value_button_active_class in remember_stake_value_button_class_list:
+            logger.log('Remember Stake Value Button is active')
+        else:
+            logger.log('Activating Remember Stake Value Button')
+            remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
+            remember_stake_value_button_hit_area.click()
     else:
-        logger.log('Activating Remember Stake Value Button')
-        remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
-        remember_stake_value_button_hit_area.click()
+        if remember_stake_value_button_active_class not in remember_stake_value_button_class_list:
+            logger.log('Remember Stake Value Button is not active')
+        else:
+            logger.log('Deactivating Remember Stake Value Button')
+            remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
+            remember_stake_value_button_hit_area.click()
