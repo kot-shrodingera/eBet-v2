@@ -41,12 +41,6 @@ def set_target_bet(self: Workflow) -> None:
             'api[method]': 'get_forks',
             'api[version]': '2',
             'get_progrev_bets': '1' if self.warm_up or self.settings.request_all_bets else '0',
-            # 'bk_login': self.settings.username,
-            # 'balance': str(balance['balance']),
-            # # 'currency': balance['currency'],
-            # 'unsettled_bets_count': str(unsettled_bets_count),
-            # 'is_porez': '1' if self.porez else '0',
-            # 'is_restrict': '1' if self.restrict else '0',
         }
         query_string = urllib.parse.urlencode(query_data)
         request_data = {
@@ -58,6 +52,8 @@ def set_target_bet(self: Workflow) -> None:
             'data[is_porez]': (None, '1' if self.porez else '0'),
             'data[is_restrict]': (None, '1' if self.restrict else '0'),
         }
+        if self.settings.bets_request_timeout:
+            request_data['data[timeout]'] = (None, str(self.settings.bets_request_timeout))
         bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
         response = requests.post(bets_request_url, files=request_data, timeout=65)
     except requests.Timeout:

@@ -35,6 +35,7 @@ class Settings:
     request_all_bets: bool
     dont_place_bets: bool
     dont_pause_on_porez: bool
+    bets_request_timeout: Union[int, None]
 
     def __init__(self, settings_file_name: str) -> None:
         settings = ConfigParser()
@@ -43,7 +44,7 @@ class Settings:
         def set_property(property: str, config_path: str, type: Union[Type[str], Type[int], Type[float], Type[bool]] = str, default: Union[str, int, float, bool, None] = None, required: bool = True):
             if config_path not in settings['Settings'] or settings['Settings'][config_path] == '':
                 if default != None:
-                    print(f'No {config_path} in settings file. Using default {default}')
+                    # print(f'No {config_path} in settings file. Using default {default}')
                     setattr(self, property, default)
                 elif not required:
                     setattr(self, property, None)
@@ -96,6 +97,7 @@ class Settings:
         set_property('request_all_bets', 'request_all_bets', bool, default=False)
         set_property('dont_place_bets', 'dont_place_bets', bool, default=False)
         set_property('dont_pause_on_porez', 'dont_pause_on_porez', bool, default=False)
+        set_property('bets_request_timeout', 'bets_request_timeout', int, required=False)
         
         if not 'chrome_binary_path' in settings['Settings']:
             standard_paths = [
