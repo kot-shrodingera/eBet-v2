@@ -28,11 +28,11 @@ def update_stats(self: Workflow) -> None:
             'data[unsettled_bets_count]': (None, str(unsettled_bets_count)),
             'data[is_porez]': (None, '1' if self.porez else '0'),
             'data[is_restrict]': (None, '1' if self.restrict else '0'),
-            'data[dont_get_forks]': '1',
+            'data[dont_get_forks]': (None, '1'),
         }
         bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
-        logger.log(bets_request_url)
         response = requests.post(bets_request_url, files=request_data, timeout=65)
+        logger.log('Done')
     except requests.Timeout:
         raise BotError('Request timeout')
 
@@ -41,5 +41,3 @@ def update_stats(self: Workflow) -> None:
     except requests.exceptions.JSONDecodeError:
         logger.log(f'\n{response.text}')
         raise BotError('Invalid JSON in response')
-
-    logger.log(json)
