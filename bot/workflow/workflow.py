@@ -103,9 +103,14 @@ class Workflow:
                 
                 if current_action == 'pause':
                     self.control.set_current_action('paused')
+                    sleep(1)
+                    seconds_pass = 0
                     while self.control.get_current_action() == 'paused':
-                        steps.update_stats(self)
-                        sleep(60)
+                        seconds_pass += 1
+                        if seconds_pass > 60:
+                            steps.update_stats(self)
+                            seconds_pass = 0
+                        sleep(1)
                 elif current_action == 'init':
                     steps.initialize(self)
                     logger.write_log(self.bet_tries_count)
