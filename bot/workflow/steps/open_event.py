@@ -17,14 +17,14 @@ def open_event(self: Workflow) -> None:
     logger.log('Event opened')
 
     self.browser.create_isolated_world()
-    sleep(0.25)
+    # sleep(0.25)
     # Иногда тут жесткая задержка, хз почему, если после create_isolated_world делать доп задержку, этой тут не будет, при 0.1 она редко
 
     # browser.wait_for('.ipe-EventHeader_Fixture, .ml1-LocationEventsMenu_Text, .sph-EventHeader') # Wait for match page to load
     self.browser.node('Event Header', event_header_selector)
     
-    sleep(0.5)
+    # sleep(0.5)
 
     # Not needed?
-    # browser.scroll_to(container_css_selector='.ipe-EventViewDetailScroller', amount=1) # Scroll once to load all markets
+    self.browser.crdi.scroll_to(container_css_selector='.ipe-EventViewDetailScroller', amount=1) # Scroll once to load all markets
     # if doing scroll must wait some time, otherwise selection clicking can be failed cause of mooving coordinates
