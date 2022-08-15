@@ -86,6 +86,7 @@ class Bot:
                     self.placed_bets_count += placed_bets_count
                     self.bets_tries_count += bets_tries_count
                     logger.log('Restarting browser')
+                    self.control.set_current_action('init')
                 
              
         self.control.set_current_action('stopped')   
