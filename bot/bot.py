@@ -17,7 +17,7 @@ class Bot:
     settings: Settings
     browser: Browser
     control: Control
-    bot_version = '2.0.5'
+    bot_version = '2.0.4'
     
     ebet_auth_token: str
     first_launch: bool
@@ -46,7 +46,6 @@ class Bot:
 
     def run(self) -> None:
         additional_options = [
-            f'--user-data-dir={os.getcwd()}/profiles/{self.settings.username}',
             # '--start-maximized'
         ]
         if self.settings.window_width and self.settings.window_height:
