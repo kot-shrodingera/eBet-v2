@@ -18,6 +18,7 @@ def update_stats(self: Workflow) -> None:
         query_data = {
             'api[method]': 'get_forks',
             'api[version]': '2',
+            'bot_version': self.bot_version,
         }
         query_string = urllib.parse.urlencode(query_data)
         request_data = {

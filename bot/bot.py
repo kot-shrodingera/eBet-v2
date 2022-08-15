@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 import requests
 
 from datetime import datetime
@@ -15,7 +16,7 @@ class Bot:
     settings: Settings
     browser: Browser
     control: Control
-    bot_version = 'v2.0.4'
+    bot_version = '2.0.4'
     
     ebet_auth_token: str
     first_launch: bool
@@ -28,7 +29,16 @@ class Bot:
         self.settings = Settings(settings__file_name)
         self.control = Control()
         self.first_launch = not os.path.exists(f'./profiles/{self.settings.username}')
-        response = requests.get(f'http://bvb.strike.ws/bot/index.php?api[method]=auth&api[version]=1&api_key={self.settings.api_key}&password={self.settings.api_password}').json()
+        
+        query_data = {
+            'api[method]': 'auth',
+            'api[version]': '1',
+            'api_key': self.settings.api_key,
+            'password': self.settings.api_password,
+            'bot_version': self.bot_version,
+        }
+        query_string = urllib.parse.urlencode(query_data)
+        response = requests.get(f'http://bvb.strike.ws/bot/index.php?{query_string}').json()
         if 'data' not in response or 'token' not in response['data']:
             raise Exception('No token in eBet auth response')
         self.ebet_auth_token = response['data']['token']

@@ -1,9 +1,17 @@
+import urllib.parse
 import requests
 
 from .. import Workflow
 
 
 def send_placed_bet(self: Workflow) -> None:
+    
+    query_data = {
+        'api[method]': 'add_placed_bet_to_history',
+        'api[version]': '1',
+        'bot_version': self.bot_version,
+    }
+    query_string = urllib.parse.urlencode(query_data)
     json = {
         'bet': self.target_bet,
         'bet365_username': self.settings.username,
@@ -21,4 +29,4 @@ def send_placed_bet(self: Workflow) -> None:
         'bet_full_duration': self.bet_full_duration.total_seconds(),
         'bot_version': self.bot_version
     }
-    requests.post(f'http://bvb.strike.ws/bot/index.php?api[method]=add_placed_bet_to_history&api[version]=1', json=json)
+    requests.post(f'http://bvb.strike.ws/bot/index.php?{query_string}', json=json)

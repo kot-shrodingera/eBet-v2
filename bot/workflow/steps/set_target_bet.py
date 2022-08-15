@@ -40,6 +40,7 @@ def set_target_bet(self: Workflow) -> None:
         query_data = {
             'api[method]': 'get_forks',
             'api[version]': '2',
+            'bot_version': self.bot_version,
             'get_progrev_bets': '1' if self.warm_up or self.settings.request_all_bets else '0',
         }
         query_string = urllib.parse.urlencode(query_data)
