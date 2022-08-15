@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import msvcrt
 from time import sleep, time
@@ -95,9 +96,10 @@ def main() -> None:
         key = get_key(['r', 'q'], 0)
         if key == 'r':
             set_action('init')
-            python_vev_path = './venv/python3.8/Scripts/python.exe'
-            python_path = python_vev_path if os.path.exists(python_vev_path) else 'python.exe'
-            subprocess.Popen([python_path, './main.py'], creationflags=subprocess.CREATE_NEW_CONSOLE)
+            python_venv_path = './venv/python3.8/Scripts/python.exe'
+            python_path = python_venv_path if os.path.exists(python_venv_path) else 'python.exe'
+            arguments = [python_path, '-B', './main.py'] if sys.argv[1] == '-B' else [python_path, './main.py']
+            subprocess.Popen(arguments, creationflags=subprocess.CREATE_NEW_CONSOLE)
         elif key == 'q':
             return
         else:
