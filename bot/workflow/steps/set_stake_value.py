@@ -27,6 +27,21 @@ def set_stake_value(self: Workflow) -> None:
     else:
         raise BotError(f'Unknown stake type: {self.settings.stake_type}')
     
+    remember_stake_value_button = self.browser.node('Remember Stake Value Button', remember_stake_value_button_selector)
+    
+    remember_stake_value_button_class_list = remember_stake_value_button.get_class_list()
+    
+    if remember_stake_value_button_class_list is None:
+        pass # TODO: Error handling
+
+    if remember_stake_value_button_active_class not in remember_stake_value_button_class_list:
+        # logger.log('Remember Stake Value Button is not active')
+        pass
+    else:
+        logger.log('Deactivating Remember Stake Value Button')
+        remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
+        remember_stake_value_button_hit_area.click()
+    
     if 'stake_sum_multiplier' in self.target_bet:
         stake_sum_multiplier = float(self.target_bet['stake_sum_multiplier'])
         self.target_stake_value = round(stake_sum_multiplier * base_target_stake_value, 2)
@@ -62,24 +77,4 @@ def set_stake_value(self: Workflow) -> None:
     if stake_value != self.target_stake_value:
         raise BotError(f'Could not set stake value ({stake_value})')
 
-    remember_stake_value_button = self.browser.node('Remember Stake Value Button', remember_stake_value_button_selector)
-    
-    remember_stake_value_button_class_list = remember_stake_value_button.get_class_list()
-    
-    if remember_stake_value_button_class_list is None:
-        pass # TODO: Error handling
 
-    if self.settings.stake_type == 'fixed':
-        if remember_stake_value_button_active_class in remember_stake_value_button_class_list:
-            logger.log('Remember Stake Value Button is active')
-        else:
-            logger.log('Activating Remember Stake Value Button')
-            remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
-            remember_stake_value_button_hit_area.click()
-    else:
-        if remember_stake_value_button_active_class not in remember_stake_value_button_class_list:
-            logger.log('Remember Stake Value Button is not active')
-        else:
-            logger.log('Deactivating Remember Stake Value Button')
-            remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
-            remember_stake_value_button_hit_area.click()
