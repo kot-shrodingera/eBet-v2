@@ -83,7 +83,7 @@ class Settings:
         set_property('max_event_bets_count', 'max_event_bets_count', int)
         set_property('warm_up_bets_limit', 'warm_up_bets_limit', int, required=False)
         
-        set_property('placed_bet_to_new_try_delay', 'placed_bet_to_new_try_delay', float)
+        set_property('placed_bet_to_new_try_delay', 'placed_bet_to_new_try_delay', float, required=False)
         set_property('placed_bet_to_open_delay', 'placed_bet_to_open_delay', float, required=False)
         set_property('placed_bet_to_place_delay', 'placed_bet_to_place_delay', float, required=False)
         
