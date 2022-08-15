@@ -46,6 +46,8 @@ def open_selection(self: Workflow) -> None:
             continue
         logger.log('Selection found')
         break
+    if not isinstance(selection_button, Node):
+        raise BotError('Selection not found')
         
     if 'Suspended' in selection_button.get_class_list():
         raise BotError('Selection is Suspended')
