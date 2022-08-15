@@ -4,10 +4,11 @@ import requests
 
 from datetime import datetime
 
+from ChromeController import ChromeContext # pyright: reportUnknownVariableType=false
+
 from . import logger
 from .settings import Settings
 from .browser import Browser
-from .browser.ChromeController import ChromeContext # pyright: reportUnknownVariableType=false
 from .workflow import Workflow
 from .control import Control
 
@@ -55,7 +56,7 @@ class Bot:
         while True:
             
 
-            with ChromeContext(binary=f'"{self.settings.chrome_binary_path}"', additional_options=additional_options) as crdi:
+            with ChromeContext(binary=f'"{self.settings.chrome_binary_path}"', profile_username=self.settings.username, start_maximised=False, additional_options=additional_options) as crdi:
                 self.browser = Browser(crdi, self.settings.mouse_logs_mode, self.settings.mouse_path_shrink)
                 
                 if self.first_launch:

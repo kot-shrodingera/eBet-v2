@@ -1,9 +1,9 @@
 from datetime import datetime
 from typing import Union, List, Any
+from ChromeController import Chrome as ChromeRemoteDebugInterface # pyright: reportUnknownVariableType=false
 
 from ..errors import BotError
 
-from .ChromeController import ChromeRemoteDebugInterface # pyright: reportUnknownVariableType=false
 from ..logger import log
 
 

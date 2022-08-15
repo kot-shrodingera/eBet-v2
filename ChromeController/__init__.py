@@ -3,7 +3,7 @@ from .tab_pool import TabPooledChromium
 from .chrome_context import ChromeContext
 
 from .transport import ChromeExecutionManager
-from .manager import ChromeRemoteDebugInterface
+from .manager import Chrome
 from .Generator import gen
 
 from .cr_exceptions import ChromeControllerException

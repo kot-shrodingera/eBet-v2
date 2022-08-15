@@ -1,8 +1,8 @@
-from ..transport import ChromeExecutionManager
-from ..manager_base import ChromeInterface
+from ChromeController.transport import ChromeExecutionManager
+from ChromeController.manager_base import ChromeInterface
 
 
-class ChromeRemoteDebugInterface(ChromeInterface):
+class GeneratedCDPCommands(ChromeInterface):
 	"""
 
 	"""
