@@ -25,6 +25,7 @@ class Settings:
     placed_bet_to_open_delay: Union[float, None]
     placed_bet_to_place_delay: Union[float, None]
     
+    close_page_on_placed_bet: bool
     browser_restart_interval: Union[int, None]
     mouse_path_shrink: float
     
@@ -87,6 +88,7 @@ class Settings:
         set_property('placed_bet_to_open_delay', 'placed_bet_to_open_delay', float, required=False)
         set_property('placed_bet_to_place_delay', 'placed_bet_to_place_delay', float, required=False)
         
+        set_property('close_page_on_placed_bet', 'close_page_on_placed_bet', bool, default=False)
         set_property('browser_restart_interval', 'browser_restart_interval', int, required=False)
         set_property('mouse_path_shrink', 'mouse_path_shrink', float, default=1) # TODO: validate [0.0 - 1.0]
         

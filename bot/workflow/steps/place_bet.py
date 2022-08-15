@@ -45,6 +45,8 @@ def place_bet(self: Workflow) -> bool:
         receipt_done_button = self.browser.node('Receipt Done Button', receipt_done_button_selector)
         receipt_done_button.click()
         sleep(0.5) # animations
+        if self.settings.close_page_on_placed_bet:
+            self.browser.go_to_url('chrome://newtab')
         logger.log('Returning to My Bets')
         self.browser.go_to_url(self.bet365_my_bets_url)
         return True
