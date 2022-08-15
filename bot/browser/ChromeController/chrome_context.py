@@ -3,7 +3,7 @@ import logging
 import contextlib
 import traceback
 
-from .manager import ChromeRemoteDebugInterface
+from .manager import Chrome
 
 @contextlib.contextmanager
 def ChromeContext(*args, **kwargs):
@@ -17,7 +17,7 @@ def ChromeContext(*args, **kwargs):
 	log = logging.getLogger("Main.ChromeController.ChromeContext")
 	chrome_created = False
 	try:
-		chrome_instance = ChromeRemoteDebugInterface(*args, **kwargs)
+		chrome_instance = Chrome(*args, **kwargs)
 		chrome_created = True
 		log.info("Entering chrome context")
 		yield chrome_instance

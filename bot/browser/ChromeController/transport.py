@@ -39,11 +39,14 @@ class ChromeExecutionManager():
 			binary,
 			base_tab_key,
 			host               = 'localhost',
-			port               = None,
+			port               = 9222,
 			websocket_timeout  = 10,
 			enable_gpu         = False,
 			headless           = False,
 			xvfb               = False,
+			profile_username   = None,
+			profile            = None,
+			start_maximised    = True,
 			additional_options = [],
 			):
 		"""
@@ -60,60 +63,102 @@ class ChromeExecutionManager():
 
 		"""
 
-		if port is None:
-			port = 9222 + (os.getpid() & 0x3FFF)
-			if port > 65530:
-				port -= 5000
-			while port in ACTIVE_PORTS:
-				port += 1
-
-		if port in ACTIVE_PORTS:
-			pass
-			# raise cr_exceptions.ReusedPortError("Attempting to start chromium using a already-in-use debug port (%s, %s)!" % (port, ACTIVE_PORTS))
-
-		ACTIVE_PORTS.add(port)
-
 		self.binary             = binary
 		self.host               = host
-		self.port               = port
 		self.headless           = headless
 		self.xvfb               = xvfb
 		self.enable_gpu         = enable_gpu
 		self.msg_id             = 0
 		self.websocket_timeout  = websocket_timeout
+		self.profile_username   = profile_username
+		self.profile            = profile
+		self.start_maximised    = start_maximised
 		self.additional_options = additional_options
 
-		self.tablist = None
 		self.soclist = {}
 		self.tab_id_map = {}
 
 		self.log = logging.getLogger("Main.ChromeController.ExecutionManager")
 
 
-		self.log.info("Launching binary %s", self.binary)
+		self.log.info("Launching binary %s", binary)
 
 		self.cr_proc = None
-		if not self.port == 9222:
-			# We retry starting chromium a few times, because it's either brittle
-			# or sometimes takes more then 10 seconds to start.
-			# Not sure which.
-			for x in range(999):
-				try:
-					self._launch_process(self.binary, self.port, base_tab_key, additional_options)
-					break
-				except cr_exceptions.ChromeConnectFailure:
-					if x > 3:
-						raise
+
+		# if port is None:
+		# 	port = 9222 + (os.getpid() & 0x3FFF)
+		# 	if port > 65530:
+		# 		port -= 5000
+		# 	while port in ACTIVE_PORTS:
+		# 		port += 1
+
+		self.port = port
+			
+		try:
+			response = requests.get(f'http://{host}:{port}/json')
+			self.tablist = response.json()
+		except requests.exceptions.ConnectionError:
+			self.open_chrome()
+
+		ACTIVE_PORTS.add(port)
 
 		# self.log.info("Connecting to %s:%s", self.host, self.port)
 		# self.connect_to_chromium(base_tab_key)
 
 		self._messages = {}
 		self._message_filters = {}
+	
+	def open_chrome(self):
+		system_drive = os.environ.get('SYSTEMDRIVE') # 'C:'
+		folders_chrome_could_be_installed_to = [
+			os.environ.get('PROGRAMFILES'),
+			os.environ.get('PROGRAMFILES(X86)'),
+			os.environ.get('LOCALAPPDATA')
+			]
+		possible_chrome_locations = []
+		for folder in folders_chrome_could_be_installed_to:
+			possible_chrome_locations.append(f'{folder}/Google/Chrome/Application/chrome.exe')
 
+		if self.profile:
+			profile_folder = '--user-data-dir=' + self.profile
+		elif self.profile_username:
+			profile_folder = f'--user-data-dir={os.getcwd()}/profiles/{self.profile_username}'
+		else:
+			profile_folder = f'--user-data-dir={os.getcwd()}/profile'
+
+		for candidate in possible_chrome_locations:
+			if os.path.exists(candidate):
+				launch_arguments = [candidate, f'--remote-debugging-port={self.port}', profile_folder]
+				if self.start_maximised:
+					launch_arguments.append('--start-maximized')
+				if self.additional_options:
+					launch_arguments += self.additional_options
+				# self.cr_proc = subprocess.Popen(launch_arguments)
+				subprocess.Popen(launch_arguments)
+				time.sleep(1)
+
+				# self.log.debug("Spawned process: %s, PID: %s", self.cr_proc, self.cr_proc.pid)
+				self.log.debug('Spawned process')
+
+				for attempt in range(100):
+					try:
+						self.tablist = self.fetch_tablist()
+
+						if not self.tablist:
+							raise cr_exceptions.ChromeStartupException('No tabs in started chromium?')
+
+						# self.tab_id_map[base_tab_key] = self.tablist[0]['id']
+						# print("Tab base key:", base_tab_key, self.tablist[0]['id'])
+						return
+					except cr_exceptions.ChromeConnectFailure as e:
+						if attempt > 8:
+							raise e
+						time.sleep(2)
+				return
+
+		raise cr_exceptions.ChromeStartupException("Couldn't find a Chrome install")
 
 	def _launch_process(self, binary, debug_port, base_tab_key, additional_options):
-
 		if binary is None:
 			binary = "chromium"
 
@@ -269,7 +314,6 @@ class ChromeExecutionManager():
 		self.log.debug("Pid: %s, Return code: %s", self.cr_proc.pid, self.cr_proc.returncode)
 		self.log.debug("Chromium closed!")
 
-
 	def close_chromium(self):
 		'''
 		Close the remote chromium instance.
@@ -295,7 +339,6 @@ class ChromeExecutionManager():
 
 		ACTIVE_PORTS.discard(self.port)
 
-
 	def _check_process_dead(self):
 		'''
 		Poll the chromium sub-process to check if it's still alive.
@@ -314,7 +357,6 @@ class ChromeExecutionManager():
 					# The communcation pipes can go away if the process has exited.
 					# If so, ignore the resulting error.
 					raise cr_exceptions.ChromeDiedError("Chromium process died unexpectedly! Don't know how to continue!")
-
 
 	def _get_tab_idx_for_key(self, tab_key):
 		'''
@@ -358,7 +400,6 @@ class ChromeExecutionManager():
 
 
 		"""
-
 		if self.cr_proc:
 			assert self.tablist is not None
 
@@ -366,9 +407,16 @@ class ChromeExecutionManager():
 
 		if not self.tablist:
 			self.tablist = self.fetch_tablist()
+		if len(self.tablist) > 1 and not self.tab_id_map:
+			# Close previously opened tabs
+			self.close_old_tabs()
 
 		for fails in range(9999):
 			try:
+				# if not self.tab_id_map:
+				# 	first_tab = self.tablist[0]
+				# 	self.tab_id_map[tab_key] = first_tab
+				# else:
 				# If we're one past the end of the tablist, we need to create a new tab
 				if tab_idx is None:
 					# print('Creating new tab')
@@ -448,10 +496,12 @@ class ChromeExecutionManager():
 		requests.get(url, timeout=timeout)
 
 		# Delete the now-removed tab from the tab map
-		self.tab_id_map.pop(tab_key)
+		del self.tab_id_map[tab_key]
 
 		self.log.info("Closing websocket connecton %s (%s)", tab_key, len(self.soclist))
-		self.soclist.pop(tab_key, None)
+		self.soclist[tab_key].close()
+		# self.soclist.pop(tab_key, None)
+		del self.soclist[tab_key]
 
 		self.tablist = self.fetch_tablist()
 		return self.tablist
@@ -465,6 +515,18 @@ class ChromeExecutionManager():
 			self.log.info("All tabs are closed. Closing chromium!")
 			self.close_websockets()
 			self.close_chromium()
+
+	def close_old_tabs(self):
+		'''Close all but the first tab if multiple tabs are open on startup'''
+		old_tab_ids = []
+		for old_tab in self.tablist:
+			if old_tab['type'] == 'page':
+				old_tab_ids.append(old_tab['id'])
+		for old_tab_id in old_tab_ids[:-1]: # Tablist is sorted by order of last activity
+			url = "http://%s:%s/json/close/%s" % (self.host, self.port, old_tab_id)
+			requests.get(url)
+
+		self.tablist = self.fetch_tablist()
 
 	def close_all(self):
 		self.log.info("Closing all tabs.")
@@ -484,10 +546,14 @@ class ChromeExecutionManager():
 				self.soclist[key].close()
 			self.soclist.pop(key)
 
-
 	def fetch_tablist(self):
-		"""Connect to host:port and request list of tabs
-			 return list of dicts of data about open tabs."""
+		"""
+		Connect to host:port and request list of tabs
+		return list of dicts of data about open tabs.
+		
+		Sample:
+		[{'description': '', 'devtoolsFrontendUrl': '/devtools/inspector.html?ws=localhost:9222/devtools/page/164BCD78DAB11D8DE5B6763F6EC5A9D8', 'faviconUrl': 'https://duckduckgo.com/favicon.ico', 'id': '164BCD78DAB11D8DE5B6763F6EC5A9D8', 'title': 'New Tab', 'type': 'page', 'url': 'chrome://newtab/', 'webSocketDebuggerUrl': 'ws://localhost:9222/devtools/page/164BCD78DAB11D8DE5B6763F6EC5A9D8'}]
+		"""
 		# find websocket endpoint
 		try:
 			response = requests.get("http://%s:%s/json" % (self.host, self.port))
@@ -582,7 +648,7 @@ class ChromeExecutionManager():
 		return sent_id
 
 
-	def __recv(self, tab_key, timeout=None):
+	def __recv(self, tab_key, timeout=None): # Use this for websocket data
 		try:
 			if timeout:
 				self.soclist[tab_key].settimeout(timeout)
@@ -664,8 +730,7 @@ class ChromeExecutionManager():
 		Note that the function is defined dynamically, and `message_id` is captured via closure.
 
 		'''
-
-
+		
 		self.__check_open_socket(tab_key)
 
 		# First, check if the message has already been received.

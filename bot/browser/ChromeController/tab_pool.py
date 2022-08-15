@@ -8,7 +8,7 @@ import cachetools
 import threading
 
 
-from .manager import ChromeRemoteDebugInterface
+from ChromeController.manager import Chrome
 
 
 class _TabStore(cachetools.LRUCache):
@@ -61,7 +61,7 @@ class TabPooledChromium(object):
 
 		self.alive = True
 
-		self.chrome_interface = ChromeRemoteDebugInterface(*args, **kwargs)
+		self.chrome_interface = Chrome(*args, **kwargs)
 
 		# We hold a tab open to prevent chrome from closing
 		# when all user tabs are closed.

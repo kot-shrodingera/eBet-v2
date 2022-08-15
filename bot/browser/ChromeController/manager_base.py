@@ -192,19 +192,19 @@ class ChromeInterface(ChromeListenerMixin):
 	"""
 
 
-	def __init__(self, binary, debug_port, use_execution_manager, additional_options, *args, **kwargs):
+	def __init__(self, binary, port, use_execution_manager, profile_username, profile, start_maximised, additional_options, *args, **kwargs):
 		"""
 		Base chromium transport initialization.
 
 		The binary to execute is assumed to be named `chromium`, and on $PATH
 		if not specified in the `binary` parameter.
 
-		The chromium binary is launched with the arg `--remote-debugging-port={debug_port}` if found.
+		The chromium binary is launched with the arg `--remote-debugging-port={port}` if found.
 
-		Note that the debug_port must be GLOBALLY unique on a PER-COMPUTER basis. If not specified, it
+		Note that the port must be GLOBALLY unique on a PER-COMPUTER basis. If not specified, it
 		will default to an unused port >= 9222.
 
-		Duplication of the debug_port parameter can often lead to cr_exceptions.ChromeStartupException
+		Duplication of the port parameter can often lead to cr_exceptions.ChromeStartupException
 		exceptions. If these happen, you may need to call ChromeInterface.close() to force shutdown
 		of chromium instances, if you are not trying to instantiate multiple instances of chromium
 		at once.
@@ -243,8 +243,11 @@ class ChromeInterface(ChromeListenerMixin):
 
 			self.transport = ChromeExecutionManager(
 					binary             = binary,
-					port               = debug_port,
+					port               = port,
 					base_tab_key       = self.tab_id,
+					profile_username   = profile_username,
+					profile            = profile,
+					start_maximised    = start_maximised,
 					additional_options = additional_options,
 					*args,
 					**kwargs
@@ -257,12 +260,12 @@ class ChromeInterface(ChromeListenerMixin):
 		self.__active_request_ids           = {}
 
 
-	def __check_ret(self, ret):
-		if ret is False or ret is None:
+	def __check_ret(self, return_value):
+		if return_value is False or return_value is None:
 			raise cr_exceptions.ChromeError("Null response from Chromium (or timed out)!")
 
-		if 'error' in ret:
-			err = pprint.pformat(ret)
+		if 'error' in return_value:
+			err = pprint.pformat(return_value)
 			raise cr_exceptions.ChromeError("Error in response: \n{}".format(err))
 
 		self.log.debug("No exception in command response!")
@@ -279,15 +282,22 @@ class ChromeInterface(ChromeListenerMixin):
 
 		Otherwise, the decoded json data-structure returned from the remote instance is
 		returned.
-
 		'''
 
 		self.transport._check_process_dead()
-		ret = self.transport.synchronous_command(tab_key=self.tab_id, *args, **kwargs)
+		return_value = self.transport.synchronous_command(tab_key=self.tab_id, *args, **kwargs)
 		self.transport._check_process_dead()
-		self.__check_ret(ret)
+
+		# Check return value:
+		if return_value is False or return_value is None:
+			raise cr_exceptions.ChromeError("Null response from Chromium (or timed out)!")
+		elif 'error' in return_value:
+			error = pprint.pformat(return_value)
+			raise cr_exceptions.ChromeError("Error in response: \n{}".format(error))
+
+		self.log.debug("No exception in command response!")
 		self.transport._check_process_dead()
-		return ret
+		return return_value
 
 
 	def asynchronous_command(self, command, **kwargs):

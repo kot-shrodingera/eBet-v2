@@ -1,21 +1,20 @@
 
 import distutils.spawn
-import os.path
 import sys, subprocess, pprint, types, json, base64, signal, pprint, time, re, random, math
 import http.cookiejar
 import urllib.parse
-from . import filter_funcs
+import ChromeController.filter_funcs as filter_funcs
 
-from .cr_exceptions import ChromeResponseNotReceived
-from .cr_exceptions import ChromeNavigateTimedOut
-from .cr_exceptions import ChromeError
-from .resources import js
+from ChromeController.cr_exceptions import ChromeResponseNotReceived
+from ChromeController.cr_exceptions import ChromeNavigateTimedOut
+from ChromeController.cr_exceptions import ChromeError
+from ChromeController.resources import js
 
 from timeout import random_timeout
 from python_ghost_cursor import path
 
 # We use the generated wrapper. If you want a different version, use the CLI interface to update.
-from .Generator.Generated import ChromeRemoteDebugInterface as ChromeRemoteDebugInterface_base
+from ChromeController.Generator.Generated import GeneratedCDPCommands
 
 DEFAULT_TIMEOUT_SECS = 10
 
@@ -27,28 +26,35 @@ class RemoteObject():
 	def __repr__(self):
 		return "<(Unimplemented) RemoteObject for JS object: '%s'>" % (self.object_meta, )
 
-class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
+class Chrome(GeneratedCDPCommands):
 	'''
 	Remote control class for Chromium.
 	'''
 
 	def __init__(self,
 		binary = None,
-		debug_port = None,
+		port = 9222,
 		use_execution_manager = None,
+		profile_username = None,
+		profile = None,
+		start_maximised = True,
 		additional_options = [],
 		disable_page = False,
 		disable_dom = False,
 		disable_network = False,
-		zoom=1.0,
 		*args,
 		**kwargs):
 		super().__init__(
-			binary                = binary,
-			debug_port              = debug_port,
+			binary = binary,
+			port = port,
 			use_execution_manager = use_execution_manager,
-			additional_options    = additional_options,
-			*args, **kwargs)
+			profile_username = profile_username,
+			profile = profile,
+			start_maximised = start_maximised,
+			additional_options = additional_options,
+			*args,
+			**kwargs
+			)
 
 		if disable_page:
 			self.log.debug("Not enabling page debug interface")
@@ -78,47 +84,50 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 
 		self.world_id = None
 		self.root_node_id = None
-		self.x_coordinate = 0
-		self.y_coordinate = 0
-		self.zoom = zoom
 		
 		self.Input_dispatchMouseEvent(type='mouseMoved', x=0, y=0)
-		
-		# Calculate viewport height
-		response = self.__exec_js('window.innerHeight', global_context=True)
-		self.viewport = response['value'] # / zoom
+		self.x_coordinate = 0
+		self.y_coordinate = 0
 	
 	'''
 	monitorEvents(document)
 	unmonitorEvents(document)
 	'''
 	
-	def click_item_at_coords(self, x_coordinate, y_coordinate):
+	def click_coords(self, coordinates, scroll=False, container_css_selector=None, scrollable_section_css_selector=None):
 		'''
 		Use the input api to generate a mouse click event at the specified coordinates.
 
 		Note that if this generates a navigation event, it will not wait for that navigation
 		to complete before returning.
-
-		browser.click_item_at_coords(200, 100)
-		element_coordinates = [200, 100]
 		'''
+		top_coordinate, right_coordinate, bottom_coordinate, left_coordinate = coordinates
 
-		if self.x_coordinate != x_coordinate and self.y_coordinate != y_coordinate:
+		# Scroll if specified
+		if scroll or container_css_selector:
+			scroll_amount = self.scroll_to(element_coordinate=bottom_coordinate, container_css_selector=container_css_selector, scrollable_section_css_selector=scrollable_section_css_selector)
+		else:
+			scroll_amount = 0
+
+		x_coordinate = random.uniform(left_coordinate, right_coordinate)
+		current_y_coordinate = random.uniform(top_coordinate, bottom_coordinate) - scroll_amount # Account for amount of pixels scrolled
+
+		# Move mouse to element if it is not already at the coordinates
+		if self.x_coordinate != x_coordinate and self.y_coordinate != current_y_coordinate:
 			starting_point = {'x': self.x_coordinate, 'y': self.y_coordinate}
-			ending_point = {'x': x_coordinate, 'y': y_coordinate}
+			ending_point = {'x': x_coordinate, 'y': current_y_coordinate}
 			route = path(starting_point, ending_point)
 
 			for step in route:
 				self.Input_dispatchMouseEvent(type='mouseMoved', x=step['x'], y=step['y'])
 
-		self.Input_dispatchMouseEvent(type='mousePressed', x=x_coordinate, y=y_coordinate, button='left', clickCount=1)
-		self.Input_dispatchMouseEvent(type='mouseReleased', x=x_coordinate, y=y_coordinate, button='left', clickCount=1)
+		self.Input_dispatchMouseEvent(type='mousePressed', x=x_coordinate, y=current_y_coordinate, button='left', clickCount=1)
+		self.Input_dispatchMouseEvent(type='mouseReleased', x=x_coordinate, y=current_y_coordinate, button='left', clickCount=1)
 		
 		self.x_coordinate = x_coordinate
-		self.y_coordinate = y_coordinate
+		self.y_coordinate = current_y_coordinate
 
-	def scroll_to(self, coordinate=None, container_css_selector=None, recheck_viewport=False, amount=None):
+	def scroll_to(self, element_coordinate=None, container_css_selector=None, scrollable_section_css_selector=None, amount=None):
 		'''
 		Inject a synthezised mouse scroll event into the page.
 
@@ -132,31 +141,49 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		calls with the same scroll delta will incrementally move the viewport in the
 		chosen direction.
 
-		Each scroll event is 100px, the coordinate passed is divided by a random number between 102 and 106 so we don't scroll down too far
+		Each scroll event is 100px
 		'''
-		if coordinate:
-			top_coordinate = 0
-			if recheck_viewport:
-				response = self.execute_javascript_statement('window.innerHeight')
-				bottom_coordinate = response['value']
-			else:
-				bottom_coordinate = self.viewport
+		if container_css_selector:
+			visible_section_top_coordinate, visible_section_bottom_coordinate = self.move_mouse_to_container(container_css_selector)
+		else:
+			visible_section_top_coordinate = 0
+			response = self.execute_javascript_statement('window.innerHeight')
+			visible_section_bottom_coordinate = response['value']
 
-			if container_css_selector:
-				top_coordinate, bottom_coordinate = self.move_mouse_to_container(container_css_selector)
-			
-			if coordinate > bottom_coordinate: # Scroll down
-				coordinate_to_scroll_to = coordinate - bottom_coordinate
-				steps_randomiser = random.randint(0, 1)
-				steps = math.ceil(coordinate_to_scroll_to / 100) + steps_randomiser
+		if element_coordinate: # Default option
+			# print('Passed coordinate:', coordinate)
+			# print('Bottom of viewport:', visible_section_bottom_coordinate)
+
+			if element_coordinate > visible_section_bottom_coordinate: # Scroll down, element is below viewport
+				if scrollable_section_css_selector:
+					scrollable_section = self.find(scrollable_section_css_selector)
+					if scrollable_section:
+						scrollable_section_top_coordinate, scrollable_section_right_coordinate, scrollable_section_bottom_coordinate, scrollable_section_left_coordinate = scrollable_section['coordinates']
+					else:
+						scrollable_section_bottom_coordinate = 10000
+						
+				coordinate_to_scroll_to = element_coordinate - visible_section_bottom_coordinate
+				# print('coordinate_to_scroll_to:', coordinate_to_scroll_to)
+				# print()
+				steps = math.ceil(coordinate_to_scroll_to / 100)
+				if not scrollable_section_css_selector: # If there isn't a chance to overscroll, add randomisation
+					steps_randomiser = random.randint(0, 1)
+					steps += steps_randomiser
 				for step in range(steps):
 					self.Input_dispatchMouseEvent(type='mouseWheel', x=self.x_coordinate, y=self.y_coordinate, deltaX=-1, deltaY=100, pointerType='mouse')
 					random_timeout(0.01, 0.08)
 				random_timeout(0.2, 0.3)
 				scroll_amount = steps * 100
+				
+				coordinate_scrolled_to = visible_section_bottom_coordinate + scroll_amount
+				if scrollable_section_css_selector and coordinate_scrolled_to > scrollable_section_bottom_coordinate: # If we have overscrolled, calculate the amount of pixels the last scroll amount was # 872 + 200 = 1072 (> 1054)
+					coordinate_before_overscrolling = coordinate_scrolled_to - 100 # 872 + 200 - 100 = 972
+					last_scroll_amount = scrollable_section_bottom_coordinate - coordinate_before_overscrolling # 1054 - 972 = 82
+					scroll_amount = scroll_amount - 100 + last_scroll_amount # 200 - 100 + 82 = 182
+					# updated_element_coordinates = 987 - 182 = 805
 				return scroll_amount
-			elif coordinate < top_coordinate: # Scroll up
-				coordinate_to_scroll_to = (coordinate - top_coordinate) * -1
+			elif element_coordinate < visible_section_top_coordinate: # Scroll up
+				coordinate_to_scroll_to = (element_coordinate - visible_section_top_coordinate) * -1
 				steps = math.ceil(coordinate_to_scroll_to / 100) # We may need to scroll to the top, so using a randomiser could cause us to overscroll despite having reached the top meaning the coordinate would be wrong
 				for step in range(steps):
 					self.Input_dispatchMouseEvent(type='mouseWheel', x=self.x_coordinate, y=self.y_coordinate, deltaX=-1, deltaY=-100, pointerType='mouse')
@@ -172,13 +199,13 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		return 0
 	
 	def move_mouse_to_container(self, container_css_selector):
-		coords = self.find(container_css_selector)
-		if coords:
-			top_coordinate, right_coordinate, bottom_coordinate, left_coordinate = coords
+		element = self.find(container_css_selector)
+		if element:
+			top_coordinate, right_coordinate, bottom_coordinate, left_coordinate = element['coordinates']
 			# If not mouse coords already within container area
-			if not left_coordinate < self.x_coordinate < right_coordinate or not bottom_coordinate < self.y_coordinate < top_coordinate:
+			if not left_coordinate < self.x_coordinate < right_coordinate or not top_coordinate < self.y_coordinate < bottom_coordinate:
 				x_coordinate = random.uniform(left_coordinate, right_coordinate)
-				y_coordinate = random.uniform(bottom_coordinate, top_coordinate)
+				y_coordinate = random.uniform(top_coordinate, bottom_coordinate)
 
 				starting_point = {'x': self.x_coordinate, 'y': self.y_coordinate}
 				ending_point = {'x': x_coordinate, 'y': y_coordinate}
@@ -218,30 +245,63 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 	
 	def get_value(self, css_selector):
 		'''Get element value via JS'''
-		element_check = self.check(css_selector)
-		if element_check:
-			element_value = self.execute_javascript_statement(f'document.querySelector("{css_selector}").value')
-			return element_value['value']
-		else:
-			return None
+		element_text = self.execute_javascript_function(f'''\
+			function get_element_text() {{
+				let element = document.querySelector("{css_selector}")
+				if (element) return element.value
+				else return null
+				}}''')
+		return element_text['value']
 
 	def get_text(self, css_selector):
 		'''Get element innerText via JS'''
-		element_check = self.check(css_selector)
-		if element_check: # Check element exists first
-			element_text = self.execute_javascript_statement(f'document.querySelector("{css_selector}").innerText')
-			return element_text['value']
-		else:
-			return None
+		element_text = self.execute_javascript_function(f'''\
+			function get_element_text() {{
+				let element = document.querySelector("{css_selector}")
+				if (element) return element.innerText
+				else return null
+				}}''')
+		return element_text['value']
+
+	def get_link(self, css_selector):
+		'''Get element href via JS'''
+		element_text = self.execute_javascript_function(f'''\
+			function get_element_text() {{
+				let element = document.querySelector("{css_selector}")
+				if (element) return element.href
+				else return null
+				}}''')
+		return element_text['value']
+
+	def get_selection_details_from_bets(self, bets_css_selector, item_name_and_css_selector_pairs):
+		js_function = f'''\
+			function get_selection_details_from_bets() {{
+				let item_elements = document.querySelectorAll('{bets_css_selector}')
+				let items_final = []
+				for (const item of item_elements) {{
+					let item_dict = {{}}'''
+		for item_name, css_selector in item_name_and_css_selector_pairs.items():
+			js_function += '\n'
+			if 'link' in item_name:
+				js_function += f'item_dict.{item_name} = item.querySelector("{css_selector}").href'
+			else:
+				js_function += f'item_dict.{item_name} = item.querySelector("{css_selector}").innerText'
+		js_function += '''
+				items_final.push(item_dict)
+				}
+			return items_final
+			}'''
+		result = self.execute_javascript_function(js_function)
+		if 'type' not in element or 'value' not in result or not type(result['value']) == list:
+			print('Error in get_text_from_multiple_items:', result)
+		return result['value']
 
 	def check(self, css_selector):
 		'''Check element exists by CSS selector via JS, faster than browser.find(css_selector)'''
-		element = self.execute_javascript_function(f'''
+		element = self.execute_javascript_function(f'''\
 			function get_element() {{
 				let element = document.querySelector('{css_selector}')
-				if (element) {{
-					return true
-					}}
+				if (element) return true
 				return false
 				}}''')
 		# print('JS query result:', element)
@@ -254,25 +314,51 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 			element_loaded = self.check(css_selector)
 			if element_loaded:
 				return True
+		print(f"Couldn't find element for CSS selector: '{css_selector}' (waited 15 seconds)")
 		return False
 		# raise ChromeError(f"Couldn't find element for CSS selector: '{css_selector}'")
 
 	def find(self, css_selector):
-		'''Find element by CSS selector via JS, scroll to it and return its center coordinates for clicking'''
-		element_coordinates = self.execute_javascript_function(f'''
-			function get_element_center_coordinates() {{
+		'''Find element by CSS selector via JS'''
+		element = self.execute_javascript_function(f'''\
+			function get_element() {{
 				let element = document.querySelector('{css_selector}')
-				if (!element) {{
-					return false
-					}}
+				if (!element) return false
 				let element_coordinates = element.getBoundingClientRect()
-				return [element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left]
+				element_details = {{
+					coordinates: [element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left],
+					text: element.innerText,
+					href: element.href,
+					classes: element.className
+					}}
+				return element_details
 				}}''')
-		# print('JS query selector result:', element_coordinates)
-		if element_coordinates['type'] != 'object':
+		# print('JS query selector result:', element)
+		if 'type' not in element or element['type'] != 'object':
 			print(f"Couldn't find element for CSS selector: '{css_selector}'")
 			return False
-		return element_coordinates['value']
+		return element['value']
+
+	def find_by_text(self, text):
+		'''Find element by text via JS'''
+		element = self.execute_javascript_function(f'''\
+			function get_element_by_text() {{
+				let element = document.evaluate('//*[text()[contains(.,"{text}")]]', document).iterateNext()
+				if (!element) return false
+				let element_coordinates = element.getBoundingClientRect()
+				let element_details = {{
+					coordinates: [element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left],
+					text: element.innerText,
+					href: element.href,
+					classes: element.className
+					}}
+				return element_details
+				}}''')
+		# print('JS query selector result:', element)
+		if 'type' not in element or element['type'] != 'object':
+			print(f"Couldn't find element for CSS selector: '{css_selector}'")
+			return False
+		return element['value']
 
 	def finds(self, css_selector, iframe=False):
 		'''Find elements by CSS selector via JS, scroll to first element and return an array of all matching elements center coordinates'''
@@ -284,79 +370,102 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 			world_creation_result = self.Page_createIsolatedWorld(iframe_frame_id)
 			# print('Page_createIsolatedWorld result:', world_creation_result)
 			iframe_isolated_world = world_creation_result['result']['executionContextId']
-		elements = self.execute_javascript_function(f'''
-			function get_center_coordinates_for_elements() {{
-				var elements = document.querySelectorAll('{css_selector}')
-				if (!elements.length) {{
-					return elements
-					}}
-				let coordinates = []
+		elements = self.execute_javascript_function(f'''\
+			function get_elements() {{
+				let elements = document.querySelectorAll('{css_selector}')
+				if (!elements.length) return []
+				let details_of_elements = []
 				for (const element of elements) {{
 					let element_coordinates = element.getBoundingClientRect()
-					coordinates.push([element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left])
+					let element_details = {{
+						coordinates: [element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left],
+						text: element.innerText,
+						href: element.href,
+						classes: element.className
+						}}
+					details_of_elements.push(element_details)
 					}}
-				return coordinates
+				return details_of_elements
 				}}''', iframe_world_id=iframe_isolated_world)
 		# print('JS query selector all result:', elements)
 		return elements['value']
 	
+	def find_child_in_parent_container(self, parent_container_css_selector='body', parent_title_text='', child_selection_container='', child_selection_text='', child_button_css_selector=''):
+		result = self.execute_javascript_function(f'''\
+			function find_button_in_parent_container_with_title() {{
+				let parent_elements = document.querySelectorAll('{parent_container_css_selector}')
+				if (!parent_elements.length) return 'No parent elements matching container CSS selector'
+				for (const parent_element of parent_elements) {{
+					let title_element = document.evaluate('.//*[text()[contains(.,"{parent_title_text}")]]', parent_element).iterateNext()
+					if (title_element) {{
+						if ('{child_selection_container}' && '{child_selection_text}') {{
+							let selection_elements = parent_element.querySelectorAll('{child_selection_container}')
+							if (!selection_elements.length) return 'No selection elements matching child_selection_container CSS selector'
+							for (const selection_element of selection_elements) {{
+								let selection_text_in_child_element = document.evaluate('.//*[text()[contains(.,"{child_selection_text}")]]', selection_element).iterateNext()
+								if (selection_text_in_child_element) {{
+									let child_button = selection_element.querySelector('{child_button_css_selector}')
+									if (!child_button) return "Couldn't find child button within selection element"
+									let child_button_coordinates = child_button.getBoundingClientRect()
+									return [child_button_coordinates.top, child_button_coordinates.right, child_button_coordinates.bottom, child_button_coordinates.left]
+									}}
+								}}
+							return "Couldn't find selection that matched child text"
+							}}
+						else if ('{child_button_css_selector}') {{
+							let button_exists = parent_element.querySelector('{child_button_css_selector}')
+							if (button_exists) return 'Parent expanded'
+							}}
+						let title_element_coordinates = title_element.getBoundingClientRect()
+						let element_details = {{
+							coordinates: [title_element_coordinates.top, title_element_coordinates.right, title_element_coordinates.bottom, title_element_coordinates.left],
+							parent_classes: parent_element.className
+							}}
+						return element_details
+						}}
+					}}
+				return 'No elements with matching title text'
+				}}''', print_function=False)
+		# print('find_button_in_parent_container_with_title result:', result)
+		return result['value']
+		
 	def click(self, css_selector, container_css_selector=None):
 		'''Find element coordinates by CSS selector via JS and click it'''
-		coords = self.find(css_selector)
-		if coords:
-			top_coordinate, right_coordinate, bottom_coordinate, left_coordinate = coords
-			element_x_coordinate = random.uniform(left_coordinate, right_coordinate)
-			element_y_coordinate = random.uniform(bottom_coordinate, top_coordinate)
-			scroll_amount = self.scroll_to(element_y_coordinate, container_css_selector=container_css_selector)
-			current_y_coordinate = element_y_coordinate - scroll_amount
-			self.click_item_at_coords(element_x_coordinate, current_y_coordinate)
+		element = self.find(css_selector)
+		if element:
+			self.click_coords(element['coordinates'], container_css_selector=container_css_selector)
 			return True
 		else:
-			# print(f"Couldn't find element to click for CSS selector: '{css_selector}'")
 			return False
 	
-	def click_by_text(self, text, container_css_selector=None):
+	def click_by_text(self, text_to_match, container_css_selector=None):
 		'''Find element containing a text string with XPath search query via JS and click it'''
-		element_coordinates = self.execute_javascript_function(f'''
+		element_coordinates = self.execute_javascript_function(f'''\
 			function get_element() {{
-				let element = document.evaluate('//*[text()[contains(.,"{text}")]]', document).iterateNext()
-				if (!element) {{
-					return false
-					}}
+				let element = document.evaluate('//*[text()[contains(.,"{text_to_match}")]]', document).iterateNext()
+				if (!element) return false
 				let element_coordinates = element.getBoundingClientRect()
 				return [element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left]
 				}}''')
-		if element_coordinates['type'] != 'object':
-			print(f"Couldn't find element to click for text: '{text}'")
+		if 'type' not in element_coordinates or element_coordinates['type'] != 'object':
+			print(f"Couldn't find element to click for text: '{text_to_match}'")
 			return False
-		top_coordinate, right_coordinate, bottom_coordinate, left_coordinate = element_coordinates['value']
-		element_x_coordinate = random.uniform(left_coordinate, right_coordinate)
-		element_y_coordinate = random.uniform(bottom_coordinate, top_coordinate)
-		scroll_amount = self.scroll_to(element_y_coordinate, container_css_selector=container_css_selector)
-		current_y_coordinate = element_y_coordinate - scroll_amount
-		self.click_item_at_coords(element_x_coordinate, current_y_coordinate)
+		self.click_coords(element_coordinates['value'], container_css_selector=container_css_selector)
 		return True
 
-	def click_by_text_exact(self, text, container_css_selector=None):
+	def click_by_text_exact(self, text_to_match, container_css_selector=None):
 		'''Find element by plain text string with XPath search query via JS and click it (text must be an exact match, not contained within a substring)'''
-		element_coordinates = self.execute_javascript_function(f'''
+		element_coordinates = self.execute_javascript_function(f'''\
 			function get_element() {{
-				let element = document.evaluate('//*[text()="{text}"]', document).iterateNext()
-				if (!element) {{
-					return false
-					}}
+				let element = document.evaluate('//*[text()="{text_to_match}"]', document).iterateNext()
+				if (!element) return false
 				let element_coordinates = element.getBoundingClientRect()
 				return [element_coordinates.top, element_coordinates.right, element_coordinates.bottom, element_coordinates.left]
 				}}''')
-		if element_coordinates['type'] != 'object':
-			print(f"Couldn't find element to click for text: '{text}'")
+		if 'type' not in element_coordinates or element_coordinates['type'] != 'object':
+			print(f"Couldn't find element to click for text: '{text_to_match}'")
 			return False
-		top_coordinate, right_coordinate, bottom_coordinate, left_coordinate = element_coordinates['value']
-		element_x_coordinate = random.uniform(left_coordinate, right_coordinate)
-		element_y_coordinate = random.uniform(bottom_coordinate, top_coordinate)
-		scroll_amount = self.scroll_to(element_y_coordinate, container_css_selector=container_css_selector)
-		current_y_coordinate = element_y_coordinate - scroll_amount
-		self.click_item_at_coords(element_x_coordinate, current_y_coordinate)
+		self.click_coords(element_coordinates['value'], container_css_selector=container_css_selector)
 		return True
 
 	def get(self, url, timeout=DEFAULT_TIMEOUT_SECS):
@@ -385,47 +494,23 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		self.transport.flush(tab_key=self.tab_id)
 
 		self.log.debug("Blocking navigate to URL: '%s'", url)
-		ret = self.Page_navigate(url = url)
+		return_value = self.Page_navigate(url = url)
 
-		assert("result"   in ret),           "Missing return content"
-		assert("frameId"  in ret['result']), "Missing 'frameId' in return content"
-		assert("loaderId" in ret['result']), "Missing 'loaderId' in return content"
+		assert('result' in return_value), 'Missing return content'
+		assert('frameId' in return_value['result']), "Missing 'frameId' in return content"
 
-		expected_id = ret['result']['frameId']
-		loader_id   = ret['result']['loaderId']
+		expected_id = return_value['result']['frameId']
 
-		try:
-			self.log.debug("Waiting for frame navigated command response.")
-			self.transport.recv_filtered(filter_funcs.check_frame_navigated_command(expected_id), tab_key=self.tab_id, timeout=timeout)
-			self.log.debug("Waiting for frameStartedLoading response.")
-			self.transport.recv_filtered(filter_funcs.check_frame_load_command("Page.frameStartedLoading"), tab_key=self.tab_id, timeout=timeout)
-			self.log.debug("Waiting for frameStoppedLoading response.")
-			self.transport.recv_filtered(filter_funcs.check_frame_load_command("Page.frameStoppedLoading"), tab_key=self.tab_id, timeout=timeout)
-			# self.transport.recv_filtered(check_load_event_fired, tab_key=self.tab_id, timeout=timeout)
+		# self.log.debug('Waiting for frame navigated command response.')
+		# self.transport.recv_filtered(filter_funcs.check_frame_navigated_command(expected_id), tab_key=self.tab_id, timeout=timeout) # This causes an error when navigating from one bet365 URL to another
+		self.log.debug('Waiting for frameStartedLoading response.')
+		self.transport.recv_filtered(filter_funcs.check_frame_load_command('Page.frameStartedLoading'), tab_key=self.tab_id, timeout=timeout)
+		self.log.debug('Waiting for frameStoppedLoading response.')
+		self.transport.recv_filtered(filter_funcs.check_frame_load_command('Page.frameStoppedLoading'), tab_key=self.tab_id, timeout=timeout)
 
-			self.log.debug("Waiting for responseReceived response.")
-			resp = self.transport.recv_filtered(filter_funcs.network_response_recieved_for_url(url=None, expected_id=expected_id), tab_key=self.tab_id, timeout=timeout)
+		# response = self.transport.recv_filtered(filter_funcs.network_response_recieved_for_url(url=None, expected_id=expected_id), tab_key=self.tab_id, timeout=timeout)
 
-			if resp is None:
-				raise ChromeNavigateTimedOut("Blocking navigate timed out!")
-
-			return resp['params']
-		# The `Page.frameNavigated ` event does not get fired for non-markup responses.
-		# Therefore, if we timeout on waiting for that, check to see if we received a binary response.
-		except ChromeResponseNotReceived:
-			# So this is basically broken, fix is https://bugs.chromium.org/p/chromium/issues/detail?id=831887
-			# but that bug report isn't fixed yet.
-			# Siiiigh.
-			self.log.warning("Failed to receive expected response to navigate command. Checking if response is a binary object.")
-			resp = self.transport.recv_filtered(
-				keycheck = filter_funcs.check_frame_loader_command(
-						method_name = "Network.responseReceived",
-						loader_id   = loader_id
-					),
-				tab_key  = self.tab_id,
-				timeout  = timeout)
-
-		return resp['params']
+		# return response['params']
 
 	def reload(self):
 		self.Page_reload()
@@ -434,6 +519,11 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		response = self.Page_getNavigationHistory()
 		previous_entry_id = response['result']['entries'][-2]['id']
 		self.Page_navigateToHistoryEntry(previous_entry_id)
+
+	def focus_tab(self):
+		'''Switch focus to tab by tab ID'''
+		cr_tab_id = self.transport._get_cr_tab_meta_for_key(self.tab_id)['id']
+		self.Target_activateTarget(cr_tab_id)
 
 	def update_headers(self, header_args):
 		'''
@@ -762,10 +852,15 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		elif iframe_world_id: # If not iframe_world_id explicitly passed
 			resp3 = self.Runtime_evaluate(expression=expression, contextId=iframe_world_id, returnByValue=True)
 		else:
-			if not self.world_id:
+			try: # Isolated world error handling
+				if not self.world_id:
+					self.create_isolated_world()
+				resp3 = self.Runtime_evaluate(expression=expression, contextId=self.world_id, returnByValue=True)
+			except ChromeError as exception:
+				print('Isolated world destroyed, retrying')
 				self.create_isolated_world()
-			resp3 = self.Runtime_evaluate(expression=expression, contextId=self.world_id, returnByValue=True)
-		
+				resp3 = self.Runtime_evaluate(expression=expression, contextId=self.world_id, returnByValue=True)
+
 		resp4 = self.__unwrap_object_return(resp3)
 
 		return resp4
@@ -883,7 +978,7 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		# I'm unclear what the "url" field is actually for. A cookie only needs the domain and
 		# path component to be fully defined. Considering the API apparently allows the domain and
 		# path parameters to be unset, I think it forms a partially redundant, with some
-		# strange interactions with mode-changing between host-only and more general
+		# strange interactions with mode-changing childween host-only and more general
 		# cookies depending on what's set where.
 		# Anyways, given we need a URL for the API to work properly, we produce a fake
 		# host url by building it out of the relevant cookie properties.
@@ -981,8 +1076,8 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 				# }
 
 				title   = tgt['title']
-				cur_url = tgt['url']
-				return title, cur_url
+				current_url = tgt['url']
+				return title, current_url
 
 	def execute_javascript_statement(self, script):
 		'''
@@ -997,13 +1092,17 @@ class ChromeRemoteDebugInterface(ChromeRemoteDebugInterface_base):
 		ret = self.__exec_js(script=script)
 		return ret
 
-	def execute_javascript_function(self, script, args=None, iframe_world_id=None):
+	def execute_javascript_function(self, script, args=None, iframe_world_id=None, print_function=False):
 		'''
 		Execute a javascript function in the context of the browser tab.
 
 		The passed script must be a single function definition, which will
 		be called via ({script}).apply(null, {args}).
 		'''
+
+		if print_function:
+			print('Final JS function:')
+			print(script)
 
 		ret = self.__exec_js(script=script, should_call=True, args=args, iframe_world_id=iframe_world_id)
 		return ret
