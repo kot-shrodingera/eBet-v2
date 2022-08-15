@@ -112,11 +112,13 @@ class Workflow:
                             seconds_pass = 0
                         sleep(1)
                 elif current_action == 'init':
-                    steps.initialize(self)
-                    logger.write_log(self.bet_tries_count)
-                    if self.settings.placed_bets_limit == 0:
-                        return False
-                    self.control.set_current_action('running')
+                    try:
+                        steps.initialize(self)
+                        logger.write_log(self.bet_tries_count)
+                        self.control.set_current_action('running')
+                    except:
+                        logger.log('Error while initializing')
+                        return (self.placed_bets_count, self.bet_tries_count)
                 elif current_action == 'running':
                     self.bet_tries_count += 1
                 
