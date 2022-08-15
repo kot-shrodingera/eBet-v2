@@ -190,11 +190,11 @@ class Workflow:
                 
             except BotError as error:
                 logger.log(f'[ERROR]: {str(error)}')
-            except (cr_exceptions.ChromeControllerException, ConnectionAbortedError, AssertionError):
+            except (cr_exceptions.ChromeCommunicationsError, ConnectionAbortedError, AssertionError):
                 logger.log('Chrome Died')
                 logger.log(traceback.format_exc())
                 logger.write_log(self.bet_tries_count)
-                return False
+                return (self.placed_bets_count, self.bet_tries_count)
             except Exception:
                 logger.log(traceback.format_exc())
             finally:
