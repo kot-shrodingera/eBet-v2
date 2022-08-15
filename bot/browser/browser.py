@@ -44,7 +44,9 @@ class Browser:
         return self.crdi.Runtime_evaluate(expression=expression, contextId=self.crdi.world_id, returnByValue=returnByValue, awaitPromise=awaitPromise) # pyright: reportUnknownMemberType=false
 
     def go_to_url(self, url: str) -> None:
-        self.crdi.Runtime_evaluate(expression=f'if (window.location.href !== "{url}") window.location.href = "{url}"')
+        # self.crdi.Runtime_evaluate(expression=f'if (window.location.href !== "{url}") window.location.href = "{url}"')
+        if self.crdi.get_current_url() != url:
+            self.crdi.get(url)
 
     def node(self, name: str, selector: Union[str, None] = None, timeout: int = 5000, empty_text_allowed: bool = True, remote_object_id: Union[str, None] = None, required: bool = True, not_found_error: Union[str, None] = None):
         from .node import Node
