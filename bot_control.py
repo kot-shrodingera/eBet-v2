@@ -91,6 +91,7 @@ def stop() -> None:
     os.remove(control_filename)
 
 def main() -> None:
+    write_pyc = len(sys.argv) > 1 and sys.argv[1] == '-B'
     if not os.path.exists(control_filename):
         print('[R] Run Bot [Q] Quit')
         key = get_key(['r', 'q'], 0)
@@ -98,7 +99,7 @@ def main() -> None:
             set_action('init')
             python_venv_path = './venv/python3.8/Scripts/python.exe'
             python_path = python_venv_path if os.path.exists(python_venv_path) else 'python.exe'
-            arguments = [python_path, '-B', './main.py'] if sys.argv[1] == '-B' else [python_path, './main.py']
+            arguments = [python_path, '-B', './main.py'] if write_pyc else [python_path, './main.py']
             subprocess.Popen(arguments, creationflags=subprocess.CREATE_NEW_CONSOLE)
         elif key == 'q':
             return
