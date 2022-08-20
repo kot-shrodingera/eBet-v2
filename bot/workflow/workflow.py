@@ -118,6 +118,7 @@ class Workflow:
                         self.control.set_current_action('running')
                     except:
                         logger.log('Error while initializing')
+                        logger.log(traceback.format_exc())
                         return (self.placed_bets_count, self.bet_tries_count)
                 elif current_action == 'running':
                     self.bet_tries_count += 1
