@@ -29,7 +29,8 @@ def open_selection(self: Workflow) -> None:
             continue
         logger.log('Market Title found')
     
-        if market_opened_class not in market_title.get_class_list():
+        class_list = market_title.get_class_list()
+        if class_list and market_opened_class not in class_list:
             logger.log('Market Title is not opened. Opening')
             market_title_text = bet365.get_market_title_text(self.browser, self.bet_details['market'])
             if not isinstance(market_title_text, Node):
@@ -48,8 +49,9 @@ def open_selection(self: Workflow) -> None:
         break
     if not isinstance(selection_button, Node):
         raise BotError('Selection not found')
-        
-    if 'Suspended' in selection_button.get_class_list():
+    
+    class_list = selection_button.get_class_list()
+    if class_list and 'Suspended' in class_list:
         raise BotError('Selection is Suspended')
         
     if self.settings.placed_bet_to_open_delay is not None and self.bet_placed_time:
