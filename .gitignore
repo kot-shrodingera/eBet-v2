@@ -5,3 +5,5 @@ __pycache__
 *.code-workspace
 settings.ini
 control
+versions
+current_version
