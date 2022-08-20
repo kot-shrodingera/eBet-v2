@@ -34,7 +34,7 @@ def click(self: Node, container_css_selector: Union[str, None] = None) -> None:
         if self.mouse_logs_mode > 1:
             logger.log(f'Got click coordinates (took {diff_2.seconds}.{diff_2.microseconds // 1000:03}s)')
         
-        scroll_amount: int = self.browser.crdi.scroll_to(element_y_coordinate, container_css_selector=container_css_selector, recheck_viewport=True)
+        scroll_amount: int = self.browser.crdi.scroll_to(element_y_coordinate, container_css_selector=container_css_selector)
         
         step_3 = datetime.now()
         diff_3 = step_3 - step_2
