@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Union, List, Any
-from ChromeController import Chrome as ChromeRemoteDebugInterface # pyright: reportUnknownVariableType=false
+from ChromeController import Chrome as ChromeRemoteDebugInterface
 
 from ..errors import BotError
 
@@ -41,7 +41,7 @@ class Browser:
         args_string = ', '.join(map(Browser._stringify_js_argument, args))
         expression = f'({function})({args_string})'
         # TODO: self.crdi.world_id check
-        return self.crdi.Runtime_evaluate(expression=expression, contextId=self.crdi.world_id, returnByValue=returnByValue, awaitPromise=awaitPromise) # pyright: reportUnknownMemberType=false
+        return self.crdi.Runtime_evaluate(expression=expression, contextId=self.crdi.world_id, returnByValue=returnByValue, awaitPromise=awaitPromise)
 
     def go_to_url(self, url: str) -> None:
         # self.crdi.Runtime_evaluate(expression=f'if (window.location.href !== "{url}") window.location.href = "{url}"')

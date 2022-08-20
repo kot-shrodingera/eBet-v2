@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-from python_ghost_cursor import path # pyright: ignore [reportMissingTypeStubs, reportUnknownVariableType]
+from python_ghost_cursor import path
 from typing import Union
 
 from . import Node
@@ -37,7 +37,7 @@ def click(self: Node, scroll=False, container_css_selector: Union[str, None] = N
             
             deleting_indecies = np.round(np.linspace(0, steps_count - 1, delete_count, endpoint=False)).astype(int)
 
-            route = np.delete(route, deleting_indecies)
+            route = np.delete(route, deleting_indecies) # pyright: ignore [reportGeneralTypeIssues]
 
         for step in route:
             browser.Input_dispatchMouseEvent(type='mouseMoved', x=step['x'], y=step['y'])

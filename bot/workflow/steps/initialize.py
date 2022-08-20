@@ -9,7 +9,7 @@ from ... import logger
 
 def initialize(self: Workflow) -> None:
     logger.header('Initialize')
-    self.browser.crdi.get(self.bet365_inplay_url) # pyright: reportUnknownMemberType=false
+    self.browser.crdi.get(self.bet365_inplay_url)
     logger.log('Bet365 tab opened')
 
     self.browser.create_isolated_world()

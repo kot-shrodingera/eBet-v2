@@ -43,7 +43,7 @@ def authorize(self: Workflow) -> None:
             else:
                 username_input.click()
             logger.log('Typing username')
-            self.browser.crdi.send(self.settings.username) # pyright: reportUnknownMemberType=false
+            self.browser.crdi.send(self.settings.username)
         
         password_input = self.browser.node('Password input', password_input_selector)
         logger.log('Typing password')

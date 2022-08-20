@@ -38,9 +38,9 @@ def scroll_to(self: Node, element_coordinate=None, container_css_selector=None, 
             scroll_amount = steps * 100
             
             coordinate_scrolled_to = visible_section_bottom_coordinate + scroll_amount
-            if scrollable_section_css_selector and coordinate_scrolled_to > scrollable_section_bottom_coordinate: # If we have overscrolled, calculate the amount of pixels the last scroll amount was # 872 + 200 = 1072 (> 1054)
+            if scrollable_section_css_selector and coordinate_scrolled_to > scrollable_section_bottom_coordinate: # pyright: ignore [reportUnboundVariable] If we have overscrolled, calculate the amount of pixels the last scroll amount was # 872 + 200 = 1072 (> 1054)
                 coordinate_before_overscrolling = coordinate_scrolled_to - 100 # 872 + 200 - 100 = 972
-                last_scroll_amount = scrollable_section_bottom_coordinate - coordinate_before_overscrolling # 1054 - 972 = 82
+                last_scroll_amount = scrollable_section_bottom_coordinate - coordinate_before_overscrolling # pyright: ignore [reportUnboundVariable] 1054 - 972 = 82
                 scroll_amount = scroll_amount - 100 + last_scroll_amount # 200 - 100 + 82 = 182
                 # updated_element_coordinates = 987 - 182 = 805
             return scroll_amount

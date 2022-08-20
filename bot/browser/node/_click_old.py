@@ -4,7 +4,7 @@ import random
 import numpy as np
 
 from datetime import datetime
-from python_ghost_cursor import path # pyright: ignore [reportMissingTypeStubs, reportUnknownVariableType]
+from python_ghost_cursor import path
 from typing import Union, Dict
 
 from . import Node
@@ -75,7 +75,7 @@ setTimeout(() => {
         if self.browser.crdi.x_coordinate != element_x_coordinate and self.browser.crdi.y_coordinate != current_y_coordinate:
             starting_point: Dict[str, float] = {'x': self.browser.crdi.x_coordinate, 'y': self.browser.crdi.y_coordinate}
             ending_point = {'x': element_x_coordinate, 'y': current_y_coordinate}
-            route = path(starting_point, ending_point) # pyright: ignore [reportUnknownVariableType]
+            route = path(starting_point, ending_point)
             steps_count = len(route)
             
             step_4 = datetime.now()
@@ -89,7 +89,7 @@ setTimeout(() => {
                 
                 deleting_indecies = np.round(np.linspace(0, steps_count - 1, delete_count, endpoint=False)).astype(int)
 
-                route = np.delete(route, deleting_indecies) # pyright: ignore [reportUnknownVariableType, reportGeneralTypeIssues]
+                route = np.delete(route, deleting_indecies) # pyright: ignore [reportGeneralTypeIssues]
                 old_steps_count = steps_count
                 steps_count = len(route)
                 logger.log(f'Shrinked mouse path ({100 * self.mouse_path_shrink}%: from {old_steps_count} to {steps_count} steps)')
@@ -98,7 +98,7 @@ setTimeout(() => {
             step_number = 1
             prev_x: float = self.browser.crdi.x_coordinate
             prev_y: float = self.browser.crdi.y_coordinate
-            for step in route: # pyright: ignore [reportUnknownVariableType]
+            for step in route:
                 step_start_time = datetime.now()
                 new_x: float = step['x']
                 new_y: float = step['y']

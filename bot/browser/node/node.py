@@ -62,9 +62,9 @@ class Node:
     
     def get_property(self, property_name: str) -> str:
         try:
-            result: Any = self.browser.crdi.Runtime_getProperties(objectId=self.remote_object_id) # pyright: reportUnknownMemberType=false
+            result: Any = self.browser.crdi.Runtime_getProperties(objectId=self.remote_object_id)
             properties = result['result']['result']
-            property: Any = next(filter(lambda x: x['name'] == property_name, properties), None) # pyright: reportUnknownArgumentType=false
+            property: Any = next(filter(lambda x: x['name'] == property_name, properties), None)
             # if property == None:
             #     log(f'Node "{self.name}" [{self.remote_object_id}] has no property {property_name}')
             #     return None

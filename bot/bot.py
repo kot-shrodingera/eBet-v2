@@ -4,7 +4,7 @@ import requests
 
 from datetime import datetime
 
-from ChromeController import ChromeContext # pyright: reportUnknownVariableType=false
+from ChromeController import ChromeContext
 
 from . import logger
 from .settings import Settings
@@ -61,7 +61,7 @@ class Bot:
                 if self.first_launch:
                     self.first_launch = False
                     logger.header('First Launch')
-                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml') # pyright: ignore [reportUnknownMemberType]
+                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml')
                     logger.log('1) Install extension')
                     logger.log('2) Set last option (IP handling policy: Disable non-proxied UDP (force proxy))')
                     logger.log('3) Close extension settings modal')
