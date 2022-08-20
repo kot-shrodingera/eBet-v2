@@ -33,7 +33,7 @@ def open_selection(self: Workflow) -> None:
             logger.log('Market Title is not opened. Opening')
             market_title_text = bet365.get_market_title_text(self.browser, self.bet_details['market'])
             if not isinstance(market_title_text, Node):
-                logger.log(market_title)
+                logger.log(market_title_text)
                 continue
             market_title_text.click()
             sleep(0.1)
