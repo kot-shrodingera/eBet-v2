@@ -126,7 +126,7 @@ class Workflow:
                     bot_work_time = datetime.now() - self.bot_start_time
                     seconds = bot_work_time.seconds
                     hours = seconds // 3600 + 24 * bot_work_time.days
-                    seconds = seconds - (hours * 3600)
+                    seconds = seconds - ((hours - 24 * bot_work_time.days) * 3600)
                     minutes = seconds // 60
                     seconds = seconds - (minutes * 60)
                     bot_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
@@ -134,7 +134,7 @@ class Workflow:
                     workflow_work_time = datetime.now() - self.start_time
                     seconds = workflow_work_time.seconds
                     hours = seconds // 3600 + 24 * workflow_work_time.days
-                    seconds = seconds - (hours * 3600)
+                    seconds = seconds - ((hours - 24 * workflow_work_time.days) * 3600)
                     minutes = seconds // 60
                     seconds = seconds - (minutes * 60)
                     workflow_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
