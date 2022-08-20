@@ -7,12 +7,6 @@ from ...browser import Browser
 
 def close_popups(browser: Browser) -> None:
     # time_log('Closing popups')
-    
-    accept_cookies_selector = '.ccm-CookieConsentPopup_Accept'
-    # TODO: remove log
-    accept_cookies = browser.node('Accept Cookies', accept_cookies_selector, 1, required=False)
-    if accept_cookies:
-        accept_cookies.click()
 
     # .iip-IntroductoryPopup_Cross is for Live Match Stats alert
     # .ccm-CookieConsentPopup_Accept to accept cookies
@@ -21,23 +15,22 @@ def close_popups(browser: Browser) -> None:
         popups = browser.crdi.finds(popup_selectors)
         for popup in popups:
             browser.crdi.click(popup_selectors)
-            logger.log('Closed bet365 popup\n')
+            logger.log('Closed bet365 popup')
             random_timeout(0, 1)
-
+    
     ## Close bet365 popups
     notification_frame = browser.crdi.check('.lp-UserNotificationsPopup_Frame')
     if notification_frame:
         # #remindLater is when the credit card is about to expire
         # #ConfirmButton is for confirm contact details prompt
         # #KeepCurrentLimitsButton is for deposit limits prompt
-        notification_selectors = '#yesButton, #ConfirmButton, #remindLater, #KeepCurrentLimitsButton'
-        close_buttons = browser.crdi.finds(notification_selectors, iframe=True) # pyright: ignore [reportUnknownVariableType, reportUnknownMemberType]
-        for top_coordinate, right_coordinate, bottom_coordinate, left_coordinate in close_buttons: # pyright: ignore [reportUnknownVariableType]
-            x_coordinate = random.uniform(left_coordinate, right_coordinate) # pyright: ignore [reportUnknownArgumentType]
-            y_coordinate = random.uniform(bottom_coordinate, top_coordinate) # pyright: ignore [reportUnknownArgumentType]
-            browser.crdi.click_item_at_coords(x_coordinate, y_coordinate) # pyright: ignore [reportUnknownMemberType]
+        # .wmeCloseButton is for Only gamble what you can afford to lose
+        notification_selectors = '#yesButton, #ConfirmButton, #remindLater, #KeepCurrentLimitsButton, .wmeCloseButton'
+        close_buttons = browser.crdi.finds(notification_selectors, iframe=True)
+        for close_button in close_buttons:
+            browser.crdi.click_coords(close_button['coordinates'])
             logger.log('Closed bet365 notification popup')
-            random_timeout(0, 1)
+            random_timeout(1)
 
     # .pm-MessageOverlayCloseButton is for new messages
     # .llm-LastLoginModule_Button is the last login time (only shows up for certain countries)
@@ -48,6 +41,6 @@ def close_popups(browser: Browser) -> None:
         for popup in popups:
             browser.crdi.click(popup_selectors)
             logger.log('Closed bet365 popup')
-            random_timeout(0, 1)
+            random_timeout(1)
 
     # logger.log('Popups closed')
