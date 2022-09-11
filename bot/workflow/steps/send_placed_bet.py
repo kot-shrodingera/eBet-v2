@@ -18,7 +18,7 @@ def send_placed_bet(self: Workflow) -> None:
         'token': self.ebet_auth_token,
         'balance_before_place_bet': self.balance_before_place_bet['balance'],
         'currency': self.balance_before_place_bet['currency'],
-        'bet_amount_initial': self.settings.stake,
+        'bet_amount_initial': self.target_stake_value,
         'bet_amount_result': self.target_stake_value,
         'coefficient_initial': self.initial_coefficient,
         'coefficient_result': self.result_coefficient,
