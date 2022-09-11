@@ -28,6 +28,7 @@ class Settings:
     close_page_on_placed_bet: bool
     browser_restart_interval: Union[int, None]
     mouse_path_shrink: float
+    dont_pause_stream: bool
     
     window_width: Union[int, None]
     window_height: Union[int, None]
@@ -91,6 +92,7 @@ class Settings:
         set_property('close_page_on_placed_bet', 'close_page_on_placed_bet', bool, default=False)
         set_property('browser_restart_interval', 'browser_restart_interval', int, required=False)
         set_property('mouse_path_shrink', 'mouse_path_shrink', float, default=1) # TODO: validate [0.0 - 1.0]
+        set_property('dont_pause_stream', 'dont_pause_stream', bool, default=False)
         
         set_property('window_width', 'window_width', int, required=False)
         set_property('window_height', 'window_height', int, required=False)
