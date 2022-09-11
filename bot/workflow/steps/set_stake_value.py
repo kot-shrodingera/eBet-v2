@@ -16,19 +16,6 @@ remember_stake_value_button_hit_area_selector = '.bsf-RememberStakeButtonNonTouc
 remember_stake_value_button_active_class = 'bsf-RememberStakeButtonNonTouch-active'
 
 def set_stake_value(self: Workflow) -> None:
-    if self.settings.stake_type == 'fixed':
-        base_target_stake_value = self.settings.stake
-    elif self.settings.stake_type == 'percent':
-        balance = get_balance(self.browser)
-        if self.settings.stake_max is None:
-            logger.log('No Maximum stake')
-            base_target_stake_value = round(balance['balance'] * self.settings.stake / 100, 2)
-        else:
-            logger.log(f'Maximum stake is {self.settings.stake_max}')
-            base_target_stake_value = min(round(balance['balance'] * self.settings.stake / 100, 2), self.settings.stake_max)
-    else:
-        raise BotError(f'Unknown stake type: {self.settings.stake_type}')
-    
     remember_stake_value_button = self.browser.node('Remember Stake Value Button', remember_stake_value_button_selector)
     
     remember_stake_value_button_class_list = remember_stake_value_button.get_class_list()
@@ -40,14 +27,6 @@ def set_stake_value(self: Workflow) -> None:
         logger.log('Deactivating Remember Stake Value Button')
         remember_stake_value_button_hit_area = self.browser.node('Remember Stake Value Button Hit Area', remember_stake_value_button_hit_area_selector)
         remember_stake_value_button_hit_area.click()
-    
-    if 'stake_sum_multiplier' in self.target_bet:
-        stake_sum_multiplier = float(self.target_bet['stake_sum_multiplier'])
-        self.target_stake_value = round(stake_sum_multiplier * base_target_stake_value, 2)
-        logger.log(f'Setting Stake Value ({stake_sum_multiplier} * {base_target_stake_value} = {self.target_stake_value})')
-    else:
-        self.target_stake_value = base_target_stake_value
-        logger.log(f'Setting Stake Value ({self.target_stake_value})')
     
     
     stake_value = get_stake_value(self.browser)

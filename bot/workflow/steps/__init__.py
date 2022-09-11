@@ -4,6 +4,7 @@ from .set_target_bet import set_target_bet as set_target_bet
 from .open_event import open_event as open_event
 from .clear_betslip import clear_betslip as clear_betslip
 from .open_selection import open_selection as open_selection
+from .calculate_stake_value import calculate_stake_value as calculate_stake_value
 from .set_stake_value import set_stake_value as set_stake_value
 from .check_bet import check_bet as check_bet
 from .set_balance_before_place_bet import set_balance_before_place_bet as set_balance_before_place_bet

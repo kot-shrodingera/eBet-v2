@@ -29,8 +29,8 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
     if current_parameter != target_parameter:
         raise BotError('Parameter has changed')
     
-    if current_balance['balance'] < self.settings.stake:
-        raise BotError('Balance is less than stake')
+    if current_balance['balance'] < self.target_stake_value:
+        raise BotError('Balance is less than target stake value')
     
     if 'score1' not in self.target_bet:
         raise BotError('No score1 in target bet')
