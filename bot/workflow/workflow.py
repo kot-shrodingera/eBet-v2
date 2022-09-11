@@ -117,6 +117,9 @@ class Workflow:
                         logger.write_log(self.bet_tries_count)
                         self.control.set_current_action('running')
                     except:
+                        # TODO: loop if porez
+                        if (self.porez and not self.settings.dont_pause_on_porez) or self.restrict:
+                            continue
                         logger.log('Error while initializing')
                         logger.log(traceback.format_exc())
                         return (self.placed_bets_count, self.bet_tries_count)
