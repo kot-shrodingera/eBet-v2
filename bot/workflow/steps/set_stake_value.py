@@ -24,7 +24,7 @@ def set_stake_value(self: Workflow) -> None:
             logger.log('No Maximum stake')
             base_target_stake_value = round(balance['balance'] * self.settings.stake / 100, 2)
         else:
-            logger.log('Maximum stake is {self.settings.stake_max}')
+            logger.log(f'Maximum stake is {self.settings.stake_max}')
             base_target_stake_value = min(round(balance['balance'] * self.settings.stake / 100, 2), self.settings.stake_max)
     else:
         raise BotError(f'Unknown stake type: {self.settings.stake_type}')
