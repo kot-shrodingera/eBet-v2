@@ -99,15 +99,18 @@ def stop() -> None:
     os.remove(control_filename)
 
 def get_current_version() -> str:
+    if not os.path.exists('current_version'):
+        with open('current_version', 'w') as file:
+            file.write('0.0.0')
+        return('0.0.0')
     with open('current_version') as file:
         return file.read()
 
 def set_current_version(version: str) -> None:
     with open('current_version', 'w') as file:
-        return file.write(version)
+        file.write(version)
 
 def get_last_version(api_key, api_password) -> str:
-    
     query_data = {
         'api[method]': 'get_bot_versions',
         'api[version]': '1',
@@ -134,6 +137,7 @@ def download_version(version: str) -> None:
         print(f'Path {path} already exists. Overwriting')
         shutil.rmtree(path)
     zip_file.extractall(path)
+    print(f'Version {version} downloaded and unpacked')
 
 def main() -> None:
     settings = ConfigParser()
@@ -156,6 +160,8 @@ def main() -> None:
         download_version(last_version)
         set_current_version(last_version)
         current_version = get_current_version()
+        print('Press any key to continue')
+        msvcrt.getch()
     elif key == 'q':
         return
     elif key == 'r':
