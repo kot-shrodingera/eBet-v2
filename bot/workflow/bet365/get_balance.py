@@ -24,6 +24,8 @@ def get_balance(browser: Browser) -> Balance:
             currency = 'GBP'
         elif balance_match_1[1] == '€':
             currency = 'EUR'
+        elif balance_match_1[1] == 'RS. ':
+            currency = 'INR'
         else:
             raise BotError(f'Cannot parse currency: {balance_text}')
         return { 'balance': float(balance_match_1[2]), 'currency': currency}
