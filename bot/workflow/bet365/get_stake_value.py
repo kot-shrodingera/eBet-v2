@@ -8,7 +8,7 @@ stake_value_input_selector = '.bsf-StakeBox_StakeValue-input'
 
 def get_stake_value(browser: Browser) -> Union[float, None]:
     stake_value_input = browser.node('Stake Value Input', stake_value_input_selector)
-    stake_value_input_text = stake_value_input.get_property('textContent')
+    stake_value_input_text = stake_value_input.get_property('textContent').replace(',', '')
 
     if stake_value_input_text == '':
         return None
