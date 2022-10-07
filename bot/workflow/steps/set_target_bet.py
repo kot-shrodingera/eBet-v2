@@ -87,6 +87,7 @@ def set_target_bet(self: Workflow) -> None:
         'alternative_selection_name': None,
         'column': None,
         'minimum_coefficient': float(self.target_bet['max_lower_coef_percent']) if 'max_lower_coef_percent' in self.target_bet else 1.1,
+        'maximum_coefficient': float(self.target_bet['max_upperr_coef_percent']) if 'max_upperr_coef_percent' in self.target_bet else None,
         'parameter': float(self.target_bet['param']) if 'param' in self.target_bet and self.target_bet['param'] != None else None,
     }
     selection_details = self.target_bet['bet365_bet_name'].split('|')

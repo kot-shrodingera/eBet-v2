@@ -25,7 +25,10 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
     
     if current_coefficient < minimum_coefficient:
         raise BotError('Current coefficient is lower than minimum')
-    
+
+    if maximum_coefficient != None and current_coefficient > maximum_coefficient:
+        raise BotError('Current coefficient is higher than maximum')
+        
     if current_parameter != target_parameter:
         raise BotError('Parameter has changed')
     

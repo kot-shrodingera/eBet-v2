@@ -31,4 +31,5 @@ class BetDetails(TypedDict):
     alternative_selection_name: Union[str, None]
     column: Union[str, None]
     minimum_coefficient: float
+    maximum_coefficient: Union[float, None]
     parameter: Union[float, None]
