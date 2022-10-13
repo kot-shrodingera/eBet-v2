@@ -1,66 +1,89 @@
 from time import sleep
 from datetime import datetime
 
+from .. import steps
+
 from .. import Workflow, bet365
 
 from ... import logger
 from ...browser import Node
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 market_opened_class = 'sip-MarketGroup_Open'
 betslip_selector = '.bs-AnimationHelper_ContainerNoScale'
 
 def open_selection(self: Workflow) -> None:
-    logger.log(f'Opening Selection {self.bet_details["market"]}|{self.bet_details["column"]}|{self.bet_details["selection"]}')
-    selection_button = None
-    find_try = 0
-    tries_limit = 10
+    open_try = 0
+    open_tries_limit = 10
+    last_error: BotError = BotError('Unknown Open Selection Error') # Will always be redefined?
     
-    while find_try < tries_limit:
-        find_try += 1
-        if find_try > 1:
-            sleep(0.2)
-        logger.log(f'Try №{find_try} of {tries_limit}')
-        
-        market_title = bet365.get_market_title(self.browser, self.bet_details['market'])
-        if not isinstance(market_title, Node):
-            logger.log(market_title)
-            continue
-        logger.log('Market Title found')
-    
-        class_list = market_title.get_class_list()
-        if class_list and market_opened_class not in class_list:
-            logger.log('Market Title is not opened. Opening')
-            market_title_text = bet365.get_market_title_text(self.browser, self.bet_details['market'])
-            if not isinstance(market_title_text, Node):
-                logger.log(market_title_text)
-                continue
-            market_title_text.click()
-            sleep(0.1)
-            continue
-        logger.log('Market is openned')
-        
-        selection_button = bet365.get_selection_button(self.browser, self.bet_details['market'], self.bet_details['column'], self.bet_details['selection'])
-        if not isinstance(selection_button, Node):
-            logger.log(selection_button)
-            continue
-        logger.log('Selection found')
-        break
-    if not isinstance(selection_button, Node):
-        raise BotError('Selection not found')
-    
-    class_list = selection_button.get_class_list()
-    if class_list and 'Suspended' in class_list:
-        raise BotError('Selection is Suspended')
-        
-    if self.settings.placed_bet_to_open_delay is not None and self.bet_placed_time:
-        timedelta = datetime.now() - self.bet_placed_time
-        delay = self.settings.placed_bet_to_open_delay - timedelta.seconds + timedelta.microseconds / 1000000
-        if delay > 0:
-            logger.log(f'Placed Bet to Open delay: {delay:.2f} seconds')
-            sleep(delay)
-    
-    selection_button.click()
+    while open_try < open_tries_limit:
+        open_try += 1
+        logger.log(f'Open Try №{open_try} of {open_tries_limit}')
+        try:
+            logger.log(f'Opening Selection {self.bet_details["market"]}|{self.bet_details["column"]}|{self.bet_details["selection"]}')
+            selection_button = None
+            find_try = 0
+            find_tries_limit = 10
+            
+            while find_try < find_tries_limit:
+                find_try += 1
+                if find_try > 1:
+                    sleep(0.2)
+                logger.log(f'Find Try №{find_try} of {find_tries_limit}')
+                
+                market_title = bet365.get_market_title(self.browser, self.bet_details['market'])
+                if not isinstance(market_title, Node):
+                    logger.log(market_title)
+                    continue
+                logger.log('Market Title found')
+            
+                class_list = market_title.get_class_list()
+                if class_list and market_opened_class not in class_list:
+                    logger.log('Market Title is not opened. Opening')
+                    market_title_text = bet365.get_market_title_text(self.browser, self.bet_details['market'])
+                    if not isinstance(market_title_text, Node):
+                        logger.log(market_title_text)
+                        continue
+                    market_title_text.click()
+                    sleep(0.1)
+                    continue
+                logger.log('Market is openned')
+                
+                selection_button = bet365.get_selection_button(self.browser, self.bet_details['market'], self.bet_details['column'], self.bet_details['selection'])
+                if not isinstance(selection_button, Node):
+                    logger.log(selection_button)
+                    continue
+                logger.log('Selection found')
+                break
+            if not isinstance(selection_button, Node):
+                raise BotError('Selection not found', ErrorType.SELECTION_NOT_FOUND)
+            
+            class_list = selection_button.get_class_list()
+            if class_list and 'Suspended' in class_list:
+                raise BotError('Selection is Suspended', ErrorType.SELECTION_IS_SUSPENDED)
+                
+            if self.settings.placed_bet_to_open_delay is not None and self.bet_placed_time:
+                timedelta = datetime.now() - self.bet_placed_time
+                delay = self.settings.placed_bet_to_open_delay - timedelta.seconds + timedelta.microseconds / 1000000
+                if delay > 0:
+                    logger.log(f'Placed Bet to Open delay: {delay:.2f} seconds')
+                    sleep(delay)
+            
+            selection_button.click()
 
-    self.browser.node('Betslip', betslip_selector, not_found_error='Betslip not opened')
+            self.browser.node('Betslip', betslip_selector, not_found_error='Betslip not opened', not_found_error_type=ErrorType.BETSLIP_DID_NOT_OPENED)
+                    
+            steps.check_bet_name(self)
+            
+            return
+
+        except BotError as error:
+            last_error = error
+            if error.error_type == ErrorType.WRONG_BET_OPENED or error.error_type == ErrorType.BETSLIP_DID_NOT_OPENED:
+                steps.clear_betslip(self)
+            else:
+                raise error
+    
+    raise last_error
