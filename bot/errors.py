@@ -3,6 +3,8 @@ from typing import Dict, Union
 
 class ErrorType(Enum):
     UNKNOWN = 1
+    UNCAUGHT_EXCEPTION = 2
+    CHROME_DIED = 3
     JS_EXCEPTION = 100
     CANNOT_GET_JS_FUNCTION_RESULT = 101
     SOME_ELEMENT_NOT_FOUND = 102

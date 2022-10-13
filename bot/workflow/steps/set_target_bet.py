@@ -1,5 +1,7 @@
+from typing import Union
 import requests
 import urllib.parse
+import json
 
 from datetime import datetime
 
@@ -44,6 +46,11 @@ def set_target_bet(self: Workflow) -> None:
             'get_progrev_bets': '1' if self.warm_up or self.settings.request_all_bets else '0',
         }
         query_string = urllib.parse.urlencode(query_data)
+        last_try_error = '' if self.last_error is None else json.dumps({
+            "error_type": self.last_error.type.name,
+            "error_message": self.last_error.message,
+            "error_data": self.last_error.data
+        })
         request_data = {
             'data[token]': (None, self.ebet_auth_token),
             'data[bk_login]': (None, self.settings.username),
@@ -52,6 +59,7 @@ def set_target_bet(self: Workflow) -> None:
             'data[unsettled_bets_count]': (None, str(unsettled_bets_count)),
             'data[is_porez]': (None, '1' if self.porez else '0'),
             'data[is_restrict]': (None, '1' if self.restrict else '0'),
+            'data[last_try_error]': (None, last_try_error),
         }
         if self.settings.bets_request_timeout:
             request_data['data[timeout]'] = (None, str(self.settings.bets_request_timeout))
@@ -61,15 +69,15 @@ def set_target_bet(self: Workflow) -> None:
         raise BotError('Request timeout', ErrorType.BETS_REQUEST_TIMEOUT)
 
     try:
-        json = response.json()
+        response_json = response.json()
     except requests.exceptions.JSONDecodeError:
         logger.log(f'\n{response.text}')
         raise BotError('Invalid JSON in response', ErrorType.BETS_REQUEST_INVALID_JSON)
 
-    if 'data' not in json or 'forks' not in json['data']:
-        logger.log(f'\n{json}')
+    if 'data' not in response_json or 'forks' not in response_json['data']:
+        logger.log(f'\n{response_json}')
         raise BotError('Not data.forks in response', ErrorType.BETS_REQUEST_NO_DATA_FORKS)
-    bets = json['data']['forks']
+    bets = response_json['data']['forks']
 
     logger.log(f'Done (Got {len(bets)} bets)')
     

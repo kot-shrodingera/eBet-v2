@@ -13,7 +13,7 @@ from . import bet365
 from .. import logger
 from ..settings import Settings
 from ..browser import Browser, cr_exceptions
-from ..errors import BotError
+from ..errors import BotError, ErrorType
 from ..control import Control
 
 
@@ -65,6 +65,8 @@ class Workflow:
     placed_bets_count: int = 0
     bet_tries_count: int = 0
     
+    last_error: Union[BotError, None]
+    
     porez = False
     restrict = False
     
@@ -94,6 +96,12 @@ class Workflow:
         from . import steps
 
         while True:
+            if ((self.last_error is not None and self.last_error.error_type == ErrorType.CHROME_DIED)
+                    or self.settings.browser_restart_interval is not None and (datetime.now() - self.start_time).seconds > self.settings.browser_restart_interval):
+                return (self.placed_bets_count, self.bet_tries_count)
+            if self.settings.placed_bets_limit and self.placed_bets_count >= self.settings.placed_bets_limit:
+                logger.log('Placed Bets Limit has been reached. Pausing')
+                self.control.set_current_action('pause')
             try:
                 if (self.porez and not self.settings.dont_pause_on_porez) or self.restrict:
                     self.control.set_current_action('pause')
@@ -195,20 +203,18 @@ class Workflow:
                     logger.log(f'Unknown action: {current_action}')
                     while current_action == self.control.get_current_action():
                         sleep(1)
-                
-            except BotError as error:
-                logger.log(f'[ERROR]: {str(error)}')
-            except (cr_exceptions.ChromeCommunicationsError, ConnectionAbortedError, AssertionError):
-                logger.log('Chrome Died')
-                logger.log(traceback.format_exc())
-                logger.write_log(self.bet_tries_count)
-                return (self.placed_bets_count, self.bet_tries_count)
-            except Exception:
-                logger.log(traceback.format_exc())
+
+                self.last_error = None
+            
+            except Exception as error:
+                if isinstance(error, BotError):
+                    logger.log(f'[ERROR]: {error.message}')
+                    self.last_error = error
+                else:
+                    traceback_string = traceback.format_exc()
+                    logger.log(traceback_string)
+                    error_type = ErrorType.CHROME_DIED if isinstance(error, (cr_exceptions.ChromeCommunicationsError, ConnectionAbortedError, AssertionError)) else ErrorType.UNCAUGHT_EXCEPTION
+                    self.last_error = BotError(str(error), error_type, {"traceback": traceback_string})
             finally:
                 logger.write_log(self.bet_tries_count)
-                if self.settings.placed_bets_limit and self.placed_bets_count >= self.settings.placed_bets_limit:
-                    logger.log('Placed Bets Limit has been reached. Pausing')
-                    self.control.set_current_action('pause')
-                elif self.settings.browser_restart_interval is not None and (datetime.now() - self.start_time).seconds > self.settings.browser_restart_interval:
-                    return (self.placed_bets_count, self.bet_tries_count)
+
