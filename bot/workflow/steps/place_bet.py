@@ -7,7 +7,7 @@ from .after_successful_bet import after_successful_bet
 from .. import Workflow, bet365
 
 from ... import logger
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 place_bet_button_selector = '.bsf-PlaceBetButton:not(.Hidden), .bsf-AcceptButton:not(.Hidden)'
@@ -53,7 +53,7 @@ def place_bet(self: Workflow) -> bool:
     
     if place_bet_result == 'Account Restricted':
         self.restrict = True
-        raise BotError('Account Restricted')
+        raise BotError('Account Restricted', ErrorType.ACCOUNT_RESTRICTED)
     
     if place_bet_result == 'Check My Bets':
         pass

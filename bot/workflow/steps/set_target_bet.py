@@ -8,7 +8,7 @@ from ..  import bet365
 from ..classes import Bet
 
 from ... import logger
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 def target_bet_predicate(self: Workflow, bet: Bet) -> bool:
@@ -58,17 +58,17 @@ def set_target_bet(self: Workflow) -> None:
         bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
         response = requests.post(bets_request_url, files=request_data, timeout=65)
     except requests.Timeout:
-        raise BotError('Request timeout')
+        raise BotError('Request timeout', ErrorType.BETS_REQUEST_TIMEOUT)
 
     try:
         json = response.json()
     except requests.exceptions.JSONDecodeError:
         logger.log(f'\n{response.text}')
-        raise BotError('Invalid JSON in response')
+        raise BotError('Invalid JSON in response', ErrorType.BETS_REQUEST_INVALID_JSON)
 
     if 'data' not in json or 'forks' not in json['data']:
         logger.log(f'\n{json}')
-        raise BotError('Not data.forks in response')
+        raise BotError('Not data.forks in response', ErrorType.BETS_REQUEST_NO_DATA_FORKS)
     bets = json['data']['forks']
 
     logger.log(f'Done (Got {len(bets)} bets)')
@@ -98,7 +98,7 @@ def set_target_bet(self: Workflow) -> None:
     elif len(selection_details) == 4:
         self.bet_details['market'], self.bet_details['alternative_selection_name'], self.bet_details['column'], self.bet_details['selection'] = selection_details
     else:
-        raise BotError(f'Cannot parse selection details: {self.target_bet["bet365_bet_name"]}')
+        raise BotError(f'Cannot parse selection details: {self.target_bet["bet365_bet_name"]}', ErrorType.CANNOT_PARSE_SELECTION_DETAILS)
     logger.log(f'Target Bet:')
     logger.log(f'Event: {self.target_bet["event"]}')
     logger.log(f'Selection: {self.bet_details["market"]} | {self.bet_details["selection"]} | {self.bet_details["column"]}')

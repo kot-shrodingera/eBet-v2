@@ -4,7 +4,7 @@ from typing import Union, Any, List
 from ..browser import Browser
 from ..js_scripts.get_element import get_element
 
-from ...errors import BotError
+from ...errors import ErrorType, BotError
 from ...logger import log
 
 class Node:
@@ -21,7 +21,8 @@ class Node:
                  empty_text_allowed: bool = True,
                  remote_object_id: Union[str, None] = None,
                  required: bool = True,
-                 not_found_error: Union[str, None] = None) -> None:
+                 not_found_error: Union[str, None] = None,
+                 not_found_error_type: Union[ErrorType, None] = None) -> None:
         self.browser = browser
         self.name = name
         self.mouse_logs_mode = browser.mouse_logs_mode
@@ -52,7 +53,7 @@ class Node:
                     self.remote_object_id = None
                     return
                 else:
-                    raise BotError(f'Required node "{name}" not found' if not not_found_error else not_found_error)
+                    raise BotError(f'Required node "{name}" not found' if not not_found_error else not_found_error, not_found_error_type if not_found_error_type else ErrorType.SOME_ELEMENT_NOT_FOUND)
             log(f'Found (took {diff.seconds}.{diff.microseconds // 1000:03}s)')
             self.remote_object_id = object_id
                 

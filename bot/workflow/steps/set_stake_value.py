@@ -5,7 +5,7 @@ from ..bet365.get_stake_value import get_stake_value
 from .. import Workflow
 
 from ... import logger
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 stake_value_input_empty_selector = '.bsf-StakeBox_StakeValue-input.bsf-StakeBox_StakeValue-empty'
@@ -47,12 +47,12 @@ def set_stake_value(self: Workflow) -> None:
     sleep(0.1)
     stake_value = get_stake_value(self.browser)
     if stake_value != 0:
-        raise BotError(f'Could not clear stake value ({stake_value})')
+        raise BotError(f'Could not clear stake value ({stake_value})', ErrorType.COULD_NOT_CLEAR_STAKE_VALUE)
     
     self.browser.crdi.send(str(self.target_stake_value)) # pyright: reportUnknownMemberType=false
     sleep(0.1)
     stake_value = get_stake_value(self.browser)
     if stake_value != self.target_stake_value:
-        raise BotError(f'Could not set stake value ({stake_value})')
+        raise BotError(f'Could not set stake value ({stake_value})', ErrorType.COULD_NOT_SET_STAKE_VALUE)
 
 

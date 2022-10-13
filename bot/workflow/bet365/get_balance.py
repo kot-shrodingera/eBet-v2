@@ -3,7 +3,7 @@ import re
 from typing import TypedDict
 
 from ...browser import Browser
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 balance_selector = '.hm-Balance'
@@ -27,7 +27,7 @@ def get_balance(browser: Browser) -> Balance:
         elif balance_match_1[1] == 'RS. ':
             currency = 'INR'
         else:
-            raise BotError(f'Cannot parse currency: {balance_text}')
+            raise BotError(f'Cannot parse currency: {balance_text}', ErrorType.CANNOT_PARSE_CURRENCY)
         return { 'balance': float(balance_match_1[2]), 'currency': currency}
     balance_regex_2 = r'^(\d+\.\d+)\s+(.+)$'
     balance_match_2 = re.search(balance_regex_2, balance_text)
@@ -35,6 +35,6 @@ def get_balance(browser: Browser) -> Balance:
         if balance_match_2[2] == 'CHF':
             currency = 'CHF'
         else:
-            raise BotError(f'Cannot parse currency: {balance_text}')
+            raise BotError(f'Cannot parse currency: {balance_text}', ErrorType.CANNOT_PARSE_CURRENCY)
         return { 'balance': float(balance_match_2[1]), 'currency': currency}
-    raise BotError(f'Cannot parse balance: {balance_text}')
+    raise BotError(f'Cannot parse balance: {balance_text}', ErrorType.CANNOT_PARSE_BALANCE)

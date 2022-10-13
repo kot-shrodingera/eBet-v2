@@ -159,7 +159,7 @@ class Workflow:
                     
                     current_balance = bet365.get_balance(self.browser)
                     if current_balance['balance'] < self.target_stake_value:
-                        raise BotError('Balance is less than target stake value')
+                        raise BotError('Balance is less than target stake value', ErrorType.STAKE_IS_HIGHER_THAN_BALANCE)
                     
                     steps.open_event(self)
                     

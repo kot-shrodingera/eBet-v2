@@ -2,6 +2,7 @@ venv
 logs
 profiles
 __pycache__
+.vscode
 *.code-workspace
 settings.ini
 control

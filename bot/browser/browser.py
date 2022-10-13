@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Union, List, Any
 from ChromeController import Chrome as ChromeRemoteDebugInterface
 
-from ..errors import BotError
+from ..errors import ErrorType, BotError
 
 from ..logger import log
 
@@ -48,7 +48,15 @@ class Browser:
         if self.crdi.get_current_url() != url:
             self.crdi.get(url)
 
-    def node(self, name: str, selector: Union[str, None] = None, timeout: int = 5000, empty_text_allowed: bool = True, remote_object_id: Union[str, None] = None, required: bool = True, not_found_error: Union[str, None] = None):
+    def node(self,
+             name: str,
+             selector: Union[str, None] = None,
+             timeout: int = 5000,
+             empty_text_allowed: bool = True,
+             remote_object_id: Union[str, None] = None,
+             required: bool = True,
+             not_found_error: Union[str, None] = None,
+             not_found_error_type: Union[ErrorType, None] = None):
         from .node import Node
         return Node(browser=self,
                     name=name,
@@ -57,7 +65,8 @@ class Browser:
                     empty_text_allowed=empty_text_allowed,
                     remote_object_id=remote_object_id,
                     required=required,
-                    not_found_error=not_found_error)
+                    not_found_error=not_found_error,
+                    not_found_error_type=not_found_error_type)
     
     # Get result object or string error
     def process_js_return(self, result: Any, node_name: str):
@@ -77,8 +86,8 @@ class Browser:
                 # log('Result is error')
                 if 'description' in result:
                     description = str(result['description']).replace('\\n', '\n')
-                    raise BotError(f'Error in js function: {description}')
+                    raise BotError(f'Error in js function: {description}', ErrorType.JS_EXCEPTION)
                 else:
-                    raise BotError(f'Error in js function: no description')
+                    raise BotError(f'Error in js function: no description', ErrorType.JS_EXCEPTION)
         log(result)
-        raise BotError('Cannot get result from js function')
+        raise BotError('Cannot get result from js function', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)

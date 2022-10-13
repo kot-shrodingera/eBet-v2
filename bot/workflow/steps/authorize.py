@@ -3,7 +3,7 @@ from time import sleep
 from .. import Workflow, bet365
 
 from ... import logger
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 member_icon_selector = '.hm-MainHeaderMembersWide_MembersMenuIcon, .hm-MainHeaderMembersNarrow_MembersMenuIcon'
@@ -69,4 +69,4 @@ def authorize(self: Workflow) -> None:
         self.porez = True
         if self.settings.dont_pause_on_porez:
             return
-        raise BotError('Pause on Porez')
+        raise BotError('Pause on Porez', ErrorType.PAUSE_ON_POREZ)

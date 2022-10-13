@@ -3,7 +3,7 @@ from ..bet365.get_stake_value import get_stake_value
 from .. import Workflow
 
 from ... import logger
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 def calculate_stake_value(self: Workflow) -> None:
     if self.settings.stake_type == 'fixed':
@@ -19,7 +19,7 @@ def calculate_stake_value(self: Workflow) -> None:
             logger.log(f'Maximum stake is {self.settings.stake_max}')
             base_target_stake_value = min(round(balance['balance'] * self.settings.stake / 100, 2), self.settings.stake_max)
     else:
-        raise BotError(f'Unknown stake type: {self.settings.stake_type}')
+        raise BotError(f'Unknown stake type: {self.settings.stake_type}', ErrorType.UNKNOWN_STAKE_TYPE_IN_SETTINGS)
     
     if 'stake_sum_multiplier' in self.target_bet:
         stake_sum_multiplier = float(self.target_bet['stake_sum_multiplier'])

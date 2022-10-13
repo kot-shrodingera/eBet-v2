@@ -3,7 +3,7 @@ import re
 from typing import Union
 
 from ...browser import Browser
-from ...errors import BotError
+from ...errors import BotError, ErrorType
 
 
 parameter_selector = '.bss-NormalBetItem_Handicap'
@@ -23,4 +23,4 @@ def get_parameter(browser: Browser) -> Union[float, None]:
         first_parameter = float(double_parameter_match[1])
         second_parameter = float(double_parameter_match[2])
         return (first_parameter + second_parameter) / 2
-    raise BotError(f'Cannot parse parameter: {parameter_text}')
+    raise BotError(f'Cannot parse parameter: {parameter_text}', ErrorType.CANNOT_PARSE_PARAMETER)
