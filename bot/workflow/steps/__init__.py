@@ -7,6 +7,7 @@ from .open_selection import open_selection as open_selection
 from .calculate_stake_value import calculate_stake_value as calculate_stake_value
 from .set_stake_value import set_stake_value as set_stake_value
 from .check_bet import check_bet as check_bet
+from .check_bet_name import check_bet_name as check_bet_name
 from .set_balance_before_place_bet import set_balance_before_place_bet as set_balance_before_place_bet
 from .place_bet import place_bet as place_bet
 from .after_successful_bet import after_successful_bet as after_successful_bet

@@ -172,6 +172,8 @@ class Workflow:
                         steps.clear_betslip(self)
                         continue
                     
+                    steps.check_bet_name(self)
+                    
                     steps.set_stake_value(self)
                     
                     steps.set_balance_before_place_bet(self)
