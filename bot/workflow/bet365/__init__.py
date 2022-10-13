@@ -3,6 +3,8 @@ from .get_balance import get_balance as get_balance
 from .get_market_title import get_market_title as get_market_title
 from .get_market_title_text import get_market_title_text as get_market_title_text
 from .get_selection_button import get_selection_button as get_selection_button
+from .get_bet_name import get_bet_name as get_bet_name
+from .get_market_name import get_market_name as get_market_name
 from .get_coefficient import get_coefficient as get_coefficient
 from .get_parameter import get_parameter as get_parameter
 from .get_place_bet_result import get_place_bet_result as get_place_bet_result
