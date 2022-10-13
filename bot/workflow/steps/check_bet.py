@@ -21,8 +21,6 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
     if not target_score2.isnumeric():
         raise BotError(f'score2 in target bet is not numeric: {target_score2}')
 
-    logger.log(f'Minimum coefficient: {minimum_coefficient} | Maximum coefficient: {maximum_coefficient} | Target parameter: {target_parameter} | Target Score: {target_score1}-{target_score2}')
-
     current_balance = bet365.get_balance(self.browser)
     if initial:
         self.balance_before_place_bet = bet365.get_balance(self.browser)
@@ -36,7 +34,8 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
         self.initial_parameter = current_parameter
 
     first_score, second_score = bet365.get_score(self.browser)
-    
+
+    logger.log(f'Minimum coefficient: {minimum_coefficient} | Maximum coefficient: {maximum_coefficient} | Target parameter: {target_parameter} | Target Score: {target_score1}-{target_score2}')
     logger.log(f'Balance: {current_balance["balance"]} | Coefficient: {current_coefficient} | Parameter: {current_parameter} | Score: {first_score}-{second_score}')
     
     if current_balance['balance'] < self.target_stake_value:
