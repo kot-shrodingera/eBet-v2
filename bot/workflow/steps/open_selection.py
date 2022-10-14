@@ -81,7 +81,7 @@ def open_selection(self: Workflow) -> None:
 
         except BotError as error:
             last_error = error
-            if error.error_type == ErrorType.WRONG_BET_OPENED or error.error_type == ErrorType.BETSLIP_DID_NOT_OPENED:
+            if error.type == ErrorType.WRONG_BET_OPENED or error.type == ErrorType.BETSLIP_DID_NOT_OPENED:
                 steps.clear_betslip(self)
             else:
                 raise error

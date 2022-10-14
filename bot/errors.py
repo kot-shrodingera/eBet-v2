@@ -35,7 +35,7 @@ class ErrorType(Enum):
 
 class BotError(Exception):
     message: str
-    error_type: ErrorType
+    type: ErrorType
     data: Union[Dict, None]
     
     def __init__(self, message: str, type: ErrorType = ErrorType.UNKNOWN, data: Union[Dict, None] = None):

@@ -65,7 +65,7 @@ class Workflow:
     placed_bets_count: int = 0
     bet_tries_count: int = 0
     
-    last_error: Union[BotError, None]
+    last_error: Union[BotError, None] = None
     
     porez = False
     restrict = False
@@ -96,7 +96,7 @@ class Workflow:
         from . import steps
 
         while True:
-            if ((self.last_error is not None and self.last_error.error_type == ErrorType.CHROME_DIED)
+            if ((self.last_error is not None and self.last_error.type == ErrorType.CHROME_DIED)
                     or self.settings.browser_restart_interval is not None and (datetime.now() - self.start_time).seconds > self.settings.browser_restart_interval):
                 return (self.placed_bets_count, self.bet_tries_count)
             if self.settings.placed_bets_limit and self.placed_bets_count >= self.settings.placed_bets_limit:
