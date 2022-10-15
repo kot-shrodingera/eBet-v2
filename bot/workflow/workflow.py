@@ -3,7 +3,7 @@ import os.path
 import json
 import traceback
 
-from typing import Tuple, Union, Dict
+from typing import Optional, Tuple, Union, Dict
 from datetime import datetime, timedelta
 from time import sleep
 
@@ -34,26 +34,26 @@ class Workflow:
         'count': 0,
         'events': {}
     }
-    last_bet: Union[Dict[str, str], None] = None
+    last_bet: Optional[Dict[str, str]] = None
     warm_up: bool = False
     warm_up_bets_count: int = 0
 
-    target_bet: Dict[str, str]
+    target_bet: Optional[Dict[str, str]]
     bet_details: BetDetails
 
     initial_coefficient: float
-    initial_parameter: Union[float, None]
+    initial_parameter: Optional[float]
     balance_before_place_bet: bet365.Balance
     target_stake_value: float
     
     result_coefficient: float
-    result_parameter: Union[float, None]
+    result_parameter: Optional[float]
     
     bot_start_time: datetime
     start_time: datetime
     open_bet_start: datetime
     place_bet_start: datetime
-    bet_placed_time: Union[datetime, None] = None
+    bet_placed_time: Optional[datetime] = None
     
     bet_open_duration: timedelta
     bet_accept_duration: timedelta
@@ -65,7 +65,7 @@ class Workflow:
     placed_bets_count: int = 0
     bet_tries_count: int = 0
     
-    last_error: Union[BotError, None] = None
+    last_error: Optional[BotError] = None
     
     porez = False
     restrict = False

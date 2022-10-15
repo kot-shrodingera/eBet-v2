@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union, Any, List
+from typing import Optional, Union, Any, List
 
 from ..browser import Browser
 from ..js_scripts.get_element import get_element
@@ -9,20 +9,20 @@ from ...logger import log
 
 class Node:
     name: str
-    remote_object_id: Union[str, None]
+    remote_object_id: Optional[str]
     mouse_logs_mode: int
     mouse_path_shrink: float
 
     def __init__(self,
                  browser: Browser,
                  name: str,
-                 selector: Union[str, None] = None,
+                 selector: Optional[str] = None,
                  timeout: int = 5000,
                  empty_text_allowed: bool = True,
-                 remote_object_id: Union[str, None] = None,
+                 remote_object_id: Optional[str] = None,
                  required: bool = True,
-                 not_found_error: Union[str, None] = None,
-                 not_found_error_type: Union[ErrorType, None] = None) -> None:
+                 not_found_error: Optional[str] = None,
+                 not_found_error_type: Optional[ErrorType] = None) -> None:
         self.browser = browser
         self.name = name
         self.mouse_logs_mode = browser.mouse_logs_mode
@@ -75,7 +75,7 @@ class Node:
             print(type(e))
             raise e
 
-    def get_class_list(self) -> Union[List[str], None]:
+    def get_class_list(self) -> Optional[List[str]]:
         try:
             result: Any = self.browser.crdi.Runtime_getProperties(objectId=self.remote_object_id)
             properties = result['result']['result']
@@ -106,6 +106,6 @@ class Node:
         return scroll_to(self, element_coordinate=element_coordinate, container_css_selector=container_css_selector, scrollable_section_css_selector=scrollable_section_css_selector, amount=amount)
         
 
-    def click(self, scroll=True, container_css_selector: Union[str, None] = None, scrollable_section_css_selector: Union[str, None] = None) -> None:
+    def click(self, scroll=True, container_css_selector: Optional[str] = None, scrollable_section_css_selector: Optional[str] = None) -> None:
         from ._click import click
         return click(self, scroll=scroll, container_css_selector=container_css_selector, scrollable_section_css_selector=scrollable_section_css_selector)

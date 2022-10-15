@@ -2,7 +2,7 @@ import os
 import json
 
 from configparser import ConfigParser
-from typing import Union, Type
+from typing import Optional, Union, Type
 
 
 class Settings:
@@ -15,30 +15,30 @@ class Settings:
     bet365_url: str
     stake: float
     stake_type: str
-    stake_max: Union[float, None]
+    stake_max: Optional[float]
     
     max_same_bets_count: int
     max_event_bets_count: int
-    warm_up_bets_limit: Union[int, None]
+    warm_up_bets_limit: Optional[int]
     
-    placed_bet_to_new_try_delay: Union[float, None]
-    placed_bet_to_open_delay: Union[float, None]
-    placed_bet_to_place_delay: Union[float, None]
+    placed_bet_to_new_try_delay: Optional[float]
+    placed_bet_to_open_delay: Optional[float]
+    placed_bet_to_place_delay: Optional[float]
     
     close_page_on_placed_bet: bool
-    browser_restart_interval: Union[int, None]
+    browser_restart_interval: Optional[int]
     mouse_path_shrink: float
     dont_pause_stream: bool
     strict_bet_name_check: bool
     
-    window_width: Union[int, None]
-    window_height: Union[int, None]
+    window_width: Optional[int]
+    window_height: Optional[int]
     mouse_logs_mode: int
-    placed_bets_limit: Union[int, None]
+    placed_bets_limit: Optional[int]
     request_all_bets: bool
     dont_place_bets: bool
     dont_pause_on_porez: bool
-    bets_request_timeout: Union[int, None]
+    bets_request_timeout: Optional[int]
 
     def __init__(self, settings_file_name: str) -> None:
         settings = ConfigParser()

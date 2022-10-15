@@ -2,11 +2,11 @@ import random
 import numpy as np
 
 from python_ghost_cursor import path
-from typing import Union
+from typing import Optional
 
 from . import Node
 
-def click(self: Node, scroll=False, container_css_selector: Union[str, None] = None, scrollable_section_css_selector: Union[str, None] = None) -> None:
+def click(self: Node, scroll=False, container_css_selector: Optional[str] = None, scrollable_section_css_selector: Optional[str] = None) -> None:
     browser = self.browser.crdi
     
     content_coords = self.get_box_model()['content']

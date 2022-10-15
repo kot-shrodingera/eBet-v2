@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Dict, Union
+from typing import Dict, Optional
 
 class ErrorType(Enum):
     UNKNOWN = 1
@@ -36,9 +36,9 @@ class ErrorType(Enum):
 class BotError(Exception):
     message: str
     type: ErrorType
-    data: Union[Dict, None]
+    data: Optional[Dict]
     
-    def __init__(self, message: str, type: ErrorType = ErrorType.UNKNOWN, data: Union[Dict, None] = None):
+    def __init__(self, message: str, type: ErrorType = ErrorType.UNKNOWN, data: Optional[Dict] = None):
         self.message = message
         super().__init__(self.message)
         self.type = type

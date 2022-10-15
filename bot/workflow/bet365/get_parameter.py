@@ -1,6 +1,6 @@
 import re
 
-from typing import Union
+from typing import Optional
 
 from ...browser import Browser
 from ...errors import BotError, ErrorType
@@ -8,7 +8,7 @@ from ...errors import BotError, ErrorType
 
 parameter_selector = '.bss-NormalBetItem_Handicap'
 
-def get_parameter(browser: Browser) -> Union[float, None]:
+def get_parameter(browser: Browser) -> Optional[float]:
     parameter = browser.node('Parameter', parameter_selector, 500, required=False)
     if not parameter:
         return None

@@ -1,10 +1,10 @@
-from typing import Union
+from typing import Optional
 
 from ...browser import Browser
 
 
 
-def get_selection_button(browser: Browser, market: str, column: Union[str, None], selection: str):
+def get_selection_button(browser: Browser, market: str, column: Optional[str], selection: str):
     function = '''
 (market, column, selection) => {
     const marketTitles = [

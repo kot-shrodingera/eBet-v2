@@ -5,13 +5,13 @@ import numpy as np
 
 from datetime import datetime
 from python_ghost_cursor import path
-from typing import Union, Dict
+from typing import Optional, Dict
 
 from . import Node
 
 from ... import logger
 
-def click(self: Node, container_css_selector: Union[str, None] = None) -> None:
+def click(self: Node, container_css_selector: Optional[str] = None) -> None:
     start_time = datetime.now()
     try:
         logger.log(f'Clicking {self.name}')

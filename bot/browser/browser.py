@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Union, List, Any
+from typing import Optional, Union, List, Any
 from ChromeController import Chrome as ChromeRemoteDebugInterface
 
 from ..errors import ErrorType, BotError
@@ -50,13 +50,13 @@ class Browser:
 
     def node(self,
              name: str,
-             selector: Union[str, None] = None,
+             selector: Optional[str] = None,
              timeout: int = 5000,
              empty_text_allowed: bool = True,
-             remote_object_id: Union[str, None] = None,
+             remote_object_id: Optional[str] = None,
              required: bool = True,
-             not_found_error: Union[str, None] = None,
-             not_found_error_type: Union[ErrorType, None] = None):
+             not_found_error: Optional[str] = None,
+             not_found_error_type: Optional[ErrorType] = None):
         from .node import Node
         return Node(browser=self,
                     name=name,

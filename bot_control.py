@@ -6,7 +6,7 @@ import shutil
 import sys
 import subprocess
 
-from typing import List, Union
+from typing import List, Optional, Union
 from time import time, sleep
 from configparser import ConfigParser
 from zipfile import ZipFile
@@ -23,7 +23,7 @@ def get_action() -> str:
     with open(control_filename) as file:
         return file.read()
 
-def get_key(accepted_keys: List[str], timeout: float = 0.5) -> Union[str, None]:
+def get_key(accepted_keys: List[str], timeout: float = 0.5) -> Optional[str]:
     if timeout == 0:
         while (key := msvcrt.getwch().lower()) not in accepted_keys:
             pass
