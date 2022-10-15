@@ -81,11 +81,10 @@ def set_target_bet(self: Workflow) -> None:
     
     self.open_bet_start = datetime.now()
     
-    target_bet = next(filter(lambda bet: target_bet_predicate(self, bet), bets), None)
-    if not target_bet:
+    self.target_bet = next(filter(lambda bet: target_bet_predicate(self, bet), bets), None)
+    if not self.target_bet:
         logger.log('No matching bets')
         return
-    self.target_bet = target_bet
 
     # TODO: Validate bet from response
 

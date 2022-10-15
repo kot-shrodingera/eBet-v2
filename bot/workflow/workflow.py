@@ -35,11 +35,10 @@ class Workflow:
         'count': 0,
         'events': {}
     }
-    last_bet: Optional[Dict[str, str]] = None
     warm_up: bool = False
     warm_up_bets_count: int = 0
 
-    target_bet: Dict[str, str]
+    target_bet: Optional[Dict[str, str]] = None
     bet_details: BetDetails
 
     initial_coefficient: float

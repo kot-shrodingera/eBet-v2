@@ -10,6 +10,8 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
 
     target_parameter = self.bet_details['parameter']
     
+    assert(self.target_bet)
+    
     if 'score1' not in self.target_bet:
         raise BotError('No score1 in target bet', ErrorType.NO_DATA_IN_BET_DETAILS)
     target_score1 = self.target_bet['score1']

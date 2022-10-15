@@ -21,8 +21,7 @@ def after_successful_bet(self: Workflow) -> None:
     self.result_parameter = bet365.get_parameter(self.browser)
     logger.log(f'Result Parameter: {self.result_parameter}')
     
-    if not self.target_bet:
-        raise BotError('No target bet in after_succesfull_bet()')
+    assert(self.target_bet)
     
     bk_id_std = self.target_bet['bk_id_std']
     bet_name = self.target_bet['bet365_bet_name']

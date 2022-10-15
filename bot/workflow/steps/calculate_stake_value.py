@@ -21,6 +21,8 @@ def calculate_stake_value(self: Workflow) -> None:
     else:
         raise BotError(f'Unknown stake type: {self.settings.stake_type}', ErrorType.UNKNOWN_STAKE_TYPE_IN_SETTINGS)
     
+    assert(self.target_bet)
+
     if 'stake_sum_multiplier' in self.target_bet:
         stake_sum_multiplier = float(self.target_bet['stake_sum_multiplier'])
         self.target_stake_value = round(stake_sum_multiplier * base_target_stake_value, 2)
