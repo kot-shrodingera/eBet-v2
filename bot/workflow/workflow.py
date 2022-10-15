@@ -9,6 +9,7 @@ from time import sleep
 
 from .classes import PlacedBets, BetDetails
 from . import bet365
+from . import utils
 
 from .. import logger
 from ..settings import Settings
@@ -134,21 +135,8 @@ class Workflow:
                 elif current_action == 'running':
                     self.bet_tries_count += 1
                 
-                    bot_work_time = datetime.now() - self.bot_start_time
-                    seconds = bot_work_time.seconds
-                    hours = seconds // 3600 + 24 * bot_work_time.days
-                    seconds = seconds - ((hours - 24 * bot_work_time.days) * 3600)
-                    minutes = seconds // 60
-                    seconds = seconds - (minutes * 60)
-                    bot_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
-                    
-                    workflow_work_time = datetime.now() - self.start_time
-                    seconds = workflow_work_time.seconds
-                    hours = seconds // 3600 + 24 * workflow_work_time.days
-                    seconds = seconds - ((hours - 24 * workflow_work_time.days) * 3600)
-                    minutes = seconds // 60
-                    seconds = seconds - (minutes * 60)
-                    workflow_work_time_string = f'{hours:02}:{minutes:02}:{seconds:02}'
+                    bot_work_time_string = utils.get_time_string(datetime.now() - self.bot_start_time)
+                    workflow_work_time_string = utils.get_time_string(datetime.now() - self.start_time)
                     
                     if self.warm_up:
                         logger.header(f'Bet Try №{self.bet_tries_count} (Warm Up: {self.warm_up_bets_count} of {self.settings.warm_up_bets_limit}) ({workflow_work_time_string}|{bot_work_time_string})')
