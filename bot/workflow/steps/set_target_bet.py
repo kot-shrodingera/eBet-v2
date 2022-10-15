@@ -1,4 +1,3 @@
-from typing import Union
 import requests
 import urllib.parse
 import json
@@ -7,13 +6,12 @@ from datetime import datetime
 
 from .. import Workflow
 from ..  import bet365
-from ..classes import Bet
 
 from ... import logger
 from ...errors import BotError, ErrorType
 
 
-def target_bet_predicate(self: Workflow, bet: Bet) -> bool:
+def target_bet_predicate(self: Workflow, bet) -> bool:
     bk_id_std = bet['bk_id_std']
     bet_name = bet['bet365_bet_name']
     bet_unique_key = bet['bet_unique_key']
@@ -83,10 +81,12 @@ def set_target_bet(self: Workflow) -> None:
     
     self.open_bet_start = datetime.now()
     
-    self.target_bet = next(filter(lambda bet: target_bet_predicate(self, bet), bets), {})
+    self.target_bet = next(filter(lambda bet: target_bet_predicate(self, bet), bets), None)
     if not self.target_bet:
         logger.log('No matching bets')
         return
+
+    # TODO: Validate bet from response
 
     self.bet_details = {
         'match_link': urllib.parse.urlunsplit(self.bet365_url_parsed._replace(path=urllib.parse.urlsplit(self.target_bet['bet365_direct_link'], allow_fragments=False).path)),
@@ -95,8 +95,13 @@ def set_target_bet(self: Workflow) -> None:
         'alternative_selection_name': None,
         'column': None,
         'minimum_coefficient': float(self.target_bet['max_lower_coef_percent']) if 'max_lower_coef_percent' in self.target_bet else 1.1,
-        'maximum_coefficient': float(self.target_bet['max_upperr_coef_percent']) if 'max_upperr_coef_percent' in self.target_bet else None,
+        'maximum_coefficient': float(self.target_bet['max_upper_coef_percent']) if 'max_upper_coef_percent' in self.target_bet else None,
         'parameter': float(self.target_bet['param']) if 'param' in self.target_bet and self.target_bet['param'] != None else None,
+        'coupon_validation_data': {
+            'period': self.target_bet['pms_period'],
+            'market': self.target_bet['pms_market'],
+            'selection': self.target_bet['pms_selection'],
+        }
     }
     selection_details = self.target_bet['bet365_bet_name'].split('|')
     if len(selection_details) == 2:
