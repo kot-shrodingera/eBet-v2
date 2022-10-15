@@ -38,7 +38,7 @@ class Workflow:
     warm_up: bool = False
     warm_up_bets_count: int = 0
 
-    target_bet: Optional[Dict[str, str]]
+    target_bet: Dict[str, str]
     bet_details: BetDetails
 
     initial_coefficient: float
