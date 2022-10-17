@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 
-def get_time_string(timedelta: timedelta):
+def get_time_string(timedelta: timedelta) -> str:
     seconds = timedelta.seconds
     hours = seconds // 3600 + 24 * timedelta.days
     seconds = seconds - ((hours - 24 * timedelta.days) * 3600)

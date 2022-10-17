@@ -101,7 +101,9 @@ def set_target_bet(self: Workflow) -> None:
             'period': self.target_bet['pms_period'],
             'market': self.target_bet['pms_market'],
             'selection': self.target_bet['pms_selection'],
-        }
+        },
+        'team1': self.target_bet['event'].split(' vs ')[0],
+        'team2': self.target_bet['event'].split(' vs ')[1],
     }
     selection_details = self.target_bet['bet365_bet_name'].split('|')
     if len(selection_details) == 2:

@@ -15,7 +15,7 @@ betslip_selector = '.bs-AnimationHelper_ContainerNoScale'
 
 def open_selection(self: Workflow) -> None:
     open_try = 0
-    open_tries_limit = 10
+    open_tries_limit = 3 # TODO: set limit in settings
     last_error: BotError = BotError('Unknown Open Selection Error') # Will always be redefined?
     
     while open_try < open_tries_limit:
@@ -35,7 +35,8 @@ def open_selection(self: Workflow) -> None:
                 
                 market_title = bet365.get_market_title(self.browser, self.bet_details['market'])
                 if not isinstance(market_title, Node):
-                    logger.log(market_title)
+                    if find_try == find_tries_limit:
+                        logger.log(market_title)
                     continue
                 logger.log('Market Title found')
             

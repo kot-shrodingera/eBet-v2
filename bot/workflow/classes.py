@@ -113,3 +113,5 @@ class BetDetails(TypedDict):
     maximum_coefficient: Optional[float]
     parameter: Optional[float]
     coupon_validation_data: CouponValidationData
+    team1: str
+    team2: str
