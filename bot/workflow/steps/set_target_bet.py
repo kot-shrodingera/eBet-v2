@@ -16,6 +16,8 @@ def target_bet_predicate(self: Workflow, bet) -> bool:
     bet_name = bet['bet365_bet_name']
     bet_unique_key = bet['bet_unique_key']
     placed_events = self.placed_bets['events']
+    if bet['pms_market'] != 'ASIAN HANDICAP':
+        return False
     if bk_id_std in placed_events:
         placed_event = placed_events[bk_id_std]
         if placed_event['count'] >= self.settings.max_event_bets_count:
@@ -104,6 +106,8 @@ def set_target_bet(self: Workflow) -> None:
         },
         'team1': self.target_bet['event'].split(' vs ')[0],
         'team2': self.target_bet['event'].split(' vs ')[1],
+        'score': f"{self.target_bet['score1']}-{self.target_bet['score2']}",
+        'bet365_selection_parameter': self.target_bet['bet365_selection_parameter'] if 'bet365_selection_parameter' in self.target_bet else None,
     }
     selection_details = self.target_bet['bet365_bet_name'].split('|')
     if len(selection_details) == 2:
