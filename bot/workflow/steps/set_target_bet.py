@@ -16,8 +16,6 @@ def target_bet_predicate(self: Workflow, bet) -> bool:
     bet_name = bet['bet365_bet_name']
     bet_unique_key = bet['bet_unique_key']
     placed_events = self.placed_bets['events']
-    if bet['pms_market'] != 'ASIAN HANDICAP':
-        return False
     if bk_id_std in placed_events:
         placed_event = placed_events[bk_id_std]
         if placed_event['count'] >= self.settings.max_event_bets_count:
