@@ -63,6 +63,13 @@ pms_data = {
             'WIN2': '([$S]) [$T2][$P]',
         },
     },
+    'BOTH TEAMS TO SCORE': {
+        'FULLTIME': 'Both Teams to Score',
+        'selections': {
+            'YES': 'Yes',
+            'NO': 'No',
+        },
+    },
 }
 
 def handle_template(template: str, team1: str, team2: str, parameter: Optional[str], score: str) -> str:
