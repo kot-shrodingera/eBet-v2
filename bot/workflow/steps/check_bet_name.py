@@ -34,6 +34,14 @@ pms_data = {
             'UNDER': 'Under[$P]',
         },
     },
+    'GOAL LINE': {
+        'FULLTIME': 'Goal Line In-Play',
+        '1 HALF': '1st Half Goal Line',
+        'selections': {
+            'OVER': '([$S]) Over[$P]',
+            'UNDER': '([$S]) Under[$P]',
+        },
+    },
     'T1 TOTAL': {
         'FULLTIME': 'Home Team Goals',
         'selections': {
