@@ -66,6 +66,7 @@ pms_data = {
     },
     'ASIAN HANDICAP': {
         'FULLTIME': 'Asian Handicap In-Play',
+        '1 HALF': '1st Half Asian Handicap',
         'selections': {
             'WIN1': '([$S]) [$T1][$P]',
             'WIN2': '([$S]) [$T2][$P]',
