@@ -52,6 +52,7 @@ def set_target_bet(self: Workflow) -> None:
                 "bet": self.target_bet,
             },
         })
+        self.last_error = None
         request_data = {
             'data[token]': (None, self.ebet_auth_token),
             'data[bk_login]': (None, self.settings.username),
