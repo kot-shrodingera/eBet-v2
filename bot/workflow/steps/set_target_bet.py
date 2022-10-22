@@ -47,7 +47,10 @@ def set_target_bet(self: Workflow) -> None:
         last_try_error = '' if self.last_error is None else json.dumps({
             "error_type": self.last_error.type.name,
             "error_message": self.last_error.message,
-            "error_data": self.last_error.data
+            "error_data": {
+                **(self.last_error.data or {}),
+                "bet": self.target_bet,
+            },
         })
         request_data = {
             'data[token]': (None, self.ebet_auth_token),

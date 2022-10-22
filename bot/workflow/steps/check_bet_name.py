@@ -4,6 +4,7 @@ from .. import Workflow, bet365
 from ... import logger
 from ...errors import BotError, ErrorType
 
+# TODO: refactor to regexp
 # $T1 - Team 1
 # $T2 - Team 2
 # $P - Parameter (2.5, -1.5)
