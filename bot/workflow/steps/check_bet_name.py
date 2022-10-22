@@ -119,7 +119,7 @@ def check_bet_name(self: Workflow) -> None:
         else:
             logger.log('Wrong market name')
         ok = False
-    if selection_name.startswith(target_coupon_selection):
+    if not selection_name.startswith(target_coupon_selection):
         if self.settings.strict_bet_name_check:
             raise BotError('Wrong bet name', ErrorType.WRONG_BET_OPENED)
         else:
