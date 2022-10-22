@@ -8,7 +8,7 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
     minimum_coefficient = self.bet_details['minimum_coefficient']
     maximum_coefficient = self.bet_details['maximum_coefficient']
 
-    target_parameter = self.bet_details['parameter']
+    target_parameter = self.bet_details['bet365_float_parameter']
     
     assert(self.target_bet)
     

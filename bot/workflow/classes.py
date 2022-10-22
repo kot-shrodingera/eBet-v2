@@ -117,3 +117,4 @@ class BetDetails(TypedDict):
     team2: str
     score: str
     bet365_selection_parameter: Optional[str]
+    bet365_float_parameter: Optional[float]

@@ -106,6 +106,7 @@ def set_target_bet(self: Workflow) -> None:
         'team2': self.target_bet['event'].split(' vs ')[1],
         'score': f"{self.target_bet['score1']}-{self.target_bet['score2']}",
         'bet365_selection_parameter': self.target_bet['bet365_selection_parameter'] if 'bet365_selection_parameter' in self.target_bet else None,
+        'bet365_float_parameter': float(self.target_bet['bet365_float_parameter']) if 'bet365_float_parameter' in self.target_bet else None,
     }
     selection_details = self.target_bet['bet365_bet_name'].split('|')
     if len(selection_details) == 2:
