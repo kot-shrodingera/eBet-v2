@@ -13,6 +13,7 @@ from ...errors import BotError, ErrorType
 pms_data = {
     'RESULT': {
         'FULLTIME': 'Fulltime Result',
+        '1 HALF': 'Half Time Result',
         'selections': {
             'WIN1': '[$T1]',
             'DRAW': 'Draw',
