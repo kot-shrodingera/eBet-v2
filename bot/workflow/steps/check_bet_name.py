@@ -31,46 +31,46 @@ pms_data = {
         'FULLTIME': 'Match Goals',
         '1 HALF': 'First Half Goals',
         'selections': {
-            'OVER': 'Over[$P]',
-            'UNDER': 'Under[$P]',
+            'OVER': 'Over',
+            'UNDER': 'Under',
         },
     },
     'GOAL LINE': {
         'FULLTIME': 'Goal Line In-Play',
         '1 HALF': '1st Half Goal Line',
         'selections': {
-            'OVER': '([$S]) Over[$P]',
-            'UNDER': '([$S]) Under[$P]',
+            'OVER': '([$S]) Over',
+            'UNDER': '([$S]) Under',
         },
     },
     'T1 TOTAL': {
         'FULLTIME': 'Home Team Goals',
         'selections': {
-            'OVER': '[$T1] - Over[$P]',
-            'UNDER': '[$T1] - Under[$P]',
+            'OVER': '[$T1] - Over',
+            'UNDER': '[$T1] - Under',
         },
     },
     'T2 TOTAL': {
         'FULLTIME': 'Away Team Goals',
         'selections': {
-            'OVER': '[$T2] - Over[$P]',
-            'UNDER': '[$T2] - Under[$P]',
+            'OVER': '[$T2] - Over',
+            'UNDER': '[$T2] - Under',
         },
     },
     '3W HANDICAP': {
         'FULLTIME': '3-Way Handicap',
         'selections': {
-            'WIN1': '[$T1][$PZ]',
-            'DRAW': 'Draw ([$T2] )[$PZ]',
-            'WIN2': '[$T2][$PZ]',
+            'WIN1': '[$T1]',
+            'DRAW': 'Draw ([$T2] )',
+            'WIN2': '[$T2]',
         },
     },
     'ASIAN HANDICAP': {
         'FULLTIME': 'Asian Handicap In-Play',
         '1 HALF': '1st Half Asian Handicap',
         'selections': {
-            'WIN1': '([$S]) [$T1][$P]',
-            'WIN2': '([$S]) [$T2][$P]',
+            'WIN1': '([$S]) [$T1]',
+            'WIN2': '([$S]) [$T2]',
         },
     },
     'BOTH TEAMS TO SCORE': {
@@ -84,10 +84,10 @@ pms_data = {
 
 def handle_template(template: str, team1: str, team2: str, parameter: Optional[str], score: str) -> str:
     result = template.replace('[$T1]', team1).replace('[$T2]', team2).replace('[$S]', score)
-    if '[$P]' in template or '[$PZ]' in template:
-        if parameter is None:
-            raise BotError(f'Parameter template ({template}) in parameterless bet', ErrorType.PMS_ERROR)
-        result = result.replace('[$P]', parameter).replace('[$PZ]', f'{parameter}.0')
+    # if '[$P]' in template or '[$PZ]' in template:
+    #     if parameter is None:
+    #         raise BotError(f'Parameter template ({template}) in parameterless bet', ErrorType.PMS_ERROR)
+    #     result = result.replace('[$P]', parameter).replace('[$PZ]', f'{parameter}.0')
     return result
     
 
@@ -119,7 +119,7 @@ def check_bet_name(self: Workflow) -> None:
         else:
             logger.log('Wrong market name')
         ok = False
-    if target_coupon_selection != selection_name:
+    if selection_name.startswith(target_coupon_selection):
         if self.settings.strict_bet_name_check:
             raise BotError('Wrong bet name', ErrorType.WRONG_BET_OPENED)
         else:
