@@ -49,7 +49,7 @@ def set_target_bet(self: Workflow) -> None:
             "error_message": self.last_error.message,
             "error_data": {
                 **(self.last_error.data or {}),
-                "bet": self.target_bet,
+                "bet_hash": self.target_bet['bet_hash_in_history'] if self.target_bet is not None else None,
             },
         })
         self.last_error = None
