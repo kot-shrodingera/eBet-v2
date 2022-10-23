@@ -41,16 +41,31 @@ def check_bet(self: Workflow, initial: bool = False) -> None:
     logger.log(f'Balance: {current_balance["balance"]} | Coefficient: {current_coefficient} | Parameter: {current_parameter} | Score: {first_score}-{second_score}')
     
     if current_balance['balance'] < self.target_stake_value:
-        raise BotError('Balance is less than target stake value', ErrorType.STAKE_IS_HIGHER_THAN_BALANCE)
+        raise BotError('Balance is less than target stake value', ErrorType.STAKE_IS_HIGHER_THAN_BALANCE, {
+            'current_balance': current_balance['balance'],
+            'target_stake_value': self.target_stake_value,
+        })
     
     if current_coefficient < minimum_coefficient:
-        raise BotError('Current coefficient is lower than minimum', ErrorType.COEFFICIENT_IS_LOWER_THAN_MINIMUM)
+        raise BotError('Current coefficient is lower than minimum', ErrorType.COEFFICIENT_IS_LOWER_THAN_MINIMUM, {
+            'current_coefficient': current_coefficient,
+            'minimum_coefficient': minimum_coefficient,
+        })
 
     if maximum_coefficient != None and current_coefficient > maximum_coefficient:
-        raise BotError('Current coefficient is higher than maximum', ErrorType.COEFFICIENT_IS_HIGHER_THAN_MAXIMUM)
+        raise BotError('Current coefficient is higher than maximum', ErrorType.COEFFICIENT_IS_HIGHER_THAN_MAXIMUM, {
+            'current_coefficient': current_coefficient,
+            'maximum_coefficient': maximum_coefficient,
+        })
         
     if current_parameter != target_parameter:
-        raise BotError('Parameter has changed', ErrorType.PARAMETER_HAS_CHANGED)
+        raise BotError('Parameter has changed', ErrorType.PARAMETER_HAS_CHANGED, {
+            'current_parameter': current_parameter,
+            'target_parameter': target_parameter,
+        })
     
     if first_score != int(target_score1) or second_score != int(target_score2):
-        raise BotError(f'Not target score {target_score1}-{target_score2}', ErrorType.NOT_TARGET_SCORE)
+        raise BotError(f'Not target score {target_score1}-{target_score2}', ErrorType.NOT_TARGET_SCORE, {
+            'current_score': f'{first_score}-{second_score}',
+            'target_score': f'{target_score1}-{target_score2}',
+        })
