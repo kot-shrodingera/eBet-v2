@@ -203,6 +203,7 @@ class Workflow:
                     error_type = ErrorType.CHROME_DIED if isinstance(error, (cr_exceptions.ChromeCommunicationsError, ConnectionAbortedError, AssertionError)) else ErrorType.UNCAUGHT_EXCEPTION
                     self.last_error = BotError(str(error), error_type, {"traceback": traceback_string})
             finally:
-                bet365.refresh_balance(self.browser)
+                # Makes mess, maybe need to replace with js balance refresh
+                # bet365.refresh_balance(self.browser)
                 logger.write_log(self.bet_tries_count)
 
