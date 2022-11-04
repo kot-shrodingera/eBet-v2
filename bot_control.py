@@ -154,21 +154,32 @@ def main() -> None:
     last_version = get_last_version(api_key, api_password)
     print(f'Last Version: {last_version}')
     
-    print('[R] Run Bot [U] Update Bot [Q] Quit')
-    key = get_key(['r', 'u', 'q'], 0)
-    if key == 'u':
-        download_version(last_version)
-        set_current_version(last_version)
-        current_version = get_current_version()
-        print('Press any key to continue')
-        msvcrt.getch()
-    elif key == 'q':
-        return
-    elif key == 'r':
-        pass
+    if current_version != last_version:
+        print('[R] Run Bot [U] Update Bot [Q] Quit')
+        key = get_key(['r', 'u', 'q'], 0)
+        if key == 'u':
+            download_version(last_version)
+            set_current_version(last_version)
+            current_version = get_current_version()
+            print('Press any key to continue')
+            msvcrt.getch()
+        elif key == 'q':
+            return
+        elif key == 'r':
+            pass
+        else:
+            print(f'Unknown key [init] {key}')
+            return
     else:
-        print(f'Unknown key [init] {key}')
-        return
+        print('[R] Run Bot [Q] Quit')
+        key = get_key(['r', 'q'], 0)
+        if key == 'q':
+            return
+        elif key == 'r':
+            pass
+        else:
+            print(f'Unknown key [init] {key}')
+            return
     
     # TODO: check control file and suggest continue or delete
     
