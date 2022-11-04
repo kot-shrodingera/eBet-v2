@@ -20,6 +20,8 @@ def after_successful_bet(self: Workflow) -> None:
     logger.log(f'Result Coefficient: {self.result_coefficient}')
     self.result_parameter = bet365.get_parameter(self.browser)
     logger.log(f'Result Parameter: {self.result_parameter}')
+    self.result_stake_value = bet365.get_result_stake_value(self.browser)
+    logger.log(f'Result Stake Value: {self.result_stake_value}')
     
     assert(self.target_bet)
     

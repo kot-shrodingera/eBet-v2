@@ -8,6 +8,9 @@ from .get_market_name import get_market_name as get_market_name
 from .get_coefficient import get_coefficient as get_coefficient
 from .get_parameter import get_parameter as get_parameter
 from .get_place_bet_result import get_place_bet_result as get_place_bet_result
+from .get_place_bet_traders_result import get_place_bet_traders_result as get_place_bet_traders_result
+from .get_traders_accepted_amount import get_traders_accepted_amount as get_traders_accepted_amount
+from .get_result_stake_value import get_result_stake_value as get_result_stake_value
 from .close_popups import close_popups as close_popups
 from .get_unsettled_bets_count import get_unsettled_bets_count as get_unsettled_bets_count
 from .check_cashout_tab import check_cashout_tab as check_cashout_tab

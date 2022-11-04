@@ -48,6 +48,8 @@ class Workflow:
     
     result_coefficient: float
     result_parameter: Optional[float]
+    result_stake_value: float
+    traders_accepted_amount: Optional[float]
     
     bot_start_time: datetime
     start_time: datetime
@@ -177,13 +179,13 @@ class Workflow:
                         logger.log('Bet placing disabled')
                         continue
                     
-                    if steps.place_bet(self):
-                        delay = self.settings.placed_bet_to_new_try_delay
-                        if delay and delay > 0:
-                            logger.log(f'Waiting {delay} seconds')
-                            sleep(delay)
-                    else:
-                        sleep(1)
+                    steps.place_bet(self)
+                    
+                    delay = self.settings.placed_bet_to_new_try_delay
+                    if delay and delay > 0:
+                        logger.log(f'Waiting {delay} seconds')
+                        sleep(delay)
+                    
                 elif current_action == 'stop':
                     return False
                 else:
