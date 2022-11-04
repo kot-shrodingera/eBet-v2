@@ -61,11 +61,27 @@ class Bot:
                 if self.first_launch:
                     self.first_launch = False
                     logger.header('First Launch')
+                    
                     self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml')
-                    logger.log('1) Install extension')
+                    logger.log('1) Install WebRTC Leak Prevent extension')
                     logger.log('2) Set last option (IP handling policy: Disable non-proxied UDP (force proxy))')
                     logger.log('3) Close extension settings modal')
                     logger.log('4) Close extension settings chrome tab')
+                    logger.log('Press Enter to continue, or type q to quit')
+                    choice = input()
+                    if choice.lower() == 'q':
+                        return
+                    
+                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/disable-html5-autoplay-re/cafckninonjkogajnihihlnnimmkndgf')
+                    logger.log('1) Install Disable HTML5 Autoplay extension')
+                    logger.log('Press Enter to continue, or type q to quit')
+                    choice = input()
+                    if choice.lower() == 'q':
+                        return
+                    
+                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif/related')
+                    logger.log('1) Install Proxy SwitchyOmega extension [if needed]')
+                    logger.log('1) Setup proxy [if needed]')
                     logger.log('Press Enter to continue, or type q to quit')
                     choice = input()
                     if choice.lower() == 'q':
