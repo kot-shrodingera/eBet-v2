@@ -17,7 +17,7 @@ class Bot:
     settings: Settings
     browser: Browser
     control: Control
-    bot_version = '2.0.30'
+    bot_version = '2.0.31'
     
     ebet_auth_token: str
     first_launch: bool
@@ -55,7 +55,11 @@ class Bot:
         while True:
             
 
-            with ChromeContext(binary=f'"{self.settings.chrome_binary_path}"', profile_username=self.settings.username, start_maximised=False, additional_options=additional_options) as crdi:
+            with ChromeContext(binary=f'"{self.settings.chrome_binary_path}"',
+                               profile_username=self.settings.username,
+                               start_maximised=False,
+                               additional_options=additional_options,
+                               port=self.settings.chrome_port) as crdi:
                 self.browser = Browser(crdi, self.settings.mouse_logs_mode, self.settings.mouse_path_shrink)
                 
                 if self.first_launch:

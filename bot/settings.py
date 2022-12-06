@@ -11,6 +11,7 @@ class Settings:
     username: str
     password: str
     chrome_binary_path: str
+    chrome_port: int
     
     bet365_url: str
     stake: float
@@ -76,6 +77,7 @@ class Settings:
         set_property('api_password', 'api_password')
         set_property('username', 'username')
         set_property('password', 'password')
+        set_property('chrome_port', 'chrome_port', int, default=9222)
         
         set_property('bet365_url', 'bet365_url', default='https://www.bet365.com/') # TODO: URL validation
         set_property('stake', 'stake', float)
