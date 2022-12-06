@@ -177,6 +177,10 @@ class Workflow:
                     
                     if self.settings.dont_place_bets:
                         logger.log('Bet placing disabled')
+                        delay = self.settings.placed_bet_to_new_try_delay
+                        if delay and delay > 0:
+                            logger.log(f'Waiting {delay} seconds')
+                            sleep(delay)
                         continue
                     
                     steps.place_bet(self)
