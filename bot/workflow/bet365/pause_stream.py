@@ -7,15 +7,15 @@ def pause_stream(browser: Browser) -> None:
         window.pauseVideoIntervalID = setInterval(() => {
             const stream = document.querySelector('.hls-HLSStreamingModule > video');
             if (stream) {
-                console.log('Interval:Stream', stream);
-                if (!stream.paused) {
-                    console.log('Pausing stream');
-                    stream.pause();
+                // console.log('Interval:Stream', stream);
+                if (stream.src !== '') {
+                    // console.log('Pausing stream');
+                    stream.src = '';
                 } else {
-                    console.log('Stream is paused');
+                    // console.log('Stream is paused');
                 }
             } else {
-                console.log('Interval:Stream', 'No stream');
+                // console.log('Interval:Stream', 'No stream');
             }
         }, 1000);
     }
