@@ -1,6 +1,7 @@
 from time import sleep
 
 from .. import Workflow
+from .. import bet365
 
 from ... import logger
 
@@ -28,3 +29,5 @@ def open_event(self: Workflow) -> None:
     # Not needed?
     # self.browser.crdi.scroll_to(container_css_selector='.ipe-EventViewDetailScroller', amount=1) # Scroll once to load all markets
     # if doing scroll must wait some time, otherwise selection clicking can be failed cause of mooving coordinates
+    
+    bet365.pause_stream(self.browser)

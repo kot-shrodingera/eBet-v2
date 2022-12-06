@@ -1,16 +1,24 @@
-from ... import logger
 from ...browser import Browser
 
-stream_selector = '.hls-HLSStreamingModule > video'
-
 def pause_stream(browser: Browser) -> None:
-    stream = browser.node('Stream', stream_selector, 1, required=False)
-    if not stream:
-        logger.log('No stream')
-        return
-    stream_paused = stream.get_property('paused')
-    logger.log('Stream Paused: {stream_paused}')
-    if stream_paused == 'false':
-        return
-    browser.crdi.Runtime_callFunctionOn(functionDeclaration='function() { this.paused(); }', objectId=stream.remote_object_id)
+    browser.run_js_function('''
+() => {
+    if (!window.pauseVideoIntervalID) {
+        window.pauseVideoIntervalID = setInterval(() => {
+            const stream = document.querySelector('.hls-HLSStreamingModule > video');
+            if (stream) {
+                console.log('Interval:Stream', stream);
+                if (!stream.paused) {
+                    console.log('Pausing stream');
+                    stream.pause();
+                } else {
+                    console.log('Stream is paused');
+                }
+            } else {
+                console.log('Interval:Stream', 'No stream');
+            }
+        }, 1000);
+    }
+}
+''')
 

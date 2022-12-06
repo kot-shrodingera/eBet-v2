@@ -16,3 +16,4 @@ from .get_unsettled_bets_count import get_unsettled_bets_count as get_unsettled_
 from .check_cashout_tab import check_cashout_tab as check_cashout_tab
 from .get_score import get_score as get_score
 from .refresh_balance import refresh_balance as refresh_balance
+from .pause_stream import pause_stream as pause_stream
