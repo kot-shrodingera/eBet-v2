@@ -210,6 +210,6 @@ class Workflow:
                     self.last_error = BotError(str(error), error_type, {"traceback": traceback_string})
             finally:
                 # Makes mess, maybe need to replace with js balance refresh
-                # bet365.refresh_balance(self.browser)
+                bet365.refresh_balance(self.browser)
                 logger.write_log(self.bet_tries_count)
 
