@@ -150,6 +150,8 @@ class Workflow:
                     
                     steps.set_target_bet(self)
                     if not self.target_bet:
+                        if not self.settings.disable_refresh_balance:
+                            bet365.refresh_balance(self.browser)
                         continue
                     
                     steps.calculate_stake_value(self)
@@ -197,6 +199,8 @@ class Workflow:
                     while current_action == self.control.get_current_action():
                         sleep(1)
 
+                if not self.settings.disable_refresh_balance:
+                    bet365.refresh_balance(self.browser)
                 self.last_error = None
             
             except Exception as error:
@@ -209,7 +213,5 @@ class Workflow:
                     error_type = ErrorType.CHROME_DIED if isinstance(error, (cr_exceptions.ChromeCommunicationsError, ConnectionAbortedError, AssertionError)) else ErrorType.UNCAUGHT_EXCEPTION
                     self.last_error = BotError(str(error), error_type, {"traceback": traceback_string})
             finally:
-                # Makes mess, maybe need to replace with js balance refresh
-                bet365.refresh_balance(self.browser)
                 logger.write_log(self.bet_tries_count)
 
