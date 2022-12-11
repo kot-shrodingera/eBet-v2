@@ -72,7 +72,7 @@ def open_selection(self: Workflow) -> None:
                     logger.log(f'Placed Bet to Open delay: {delay:.2f} seconds')
                     sleep(delay)
             
-            selection_button.click()
+            selection_button.click(container_css_selector='.ipe-EventViewDetailScroller', scrollable_section_css_selector='.ipe-EventViewDetail_ContentContainer')
 
             self.browser.node('Betslip', betslip_selector, not_found_error='Betslip not opened', not_found_error_type=ErrorType.BETSLIP_DID_NOT_OPENED)
                     
