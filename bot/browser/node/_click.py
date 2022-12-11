@@ -29,8 +29,13 @@ def click(self: Node, scroll=False, container_css_selector: Optional[str] = None
         x_coordinate = random.uniform(left_boundry_coordinate, right_boundry_coordinate)
         y_coordinate = random.uniform(top_boundry_coordinate, bottom_boundry_coordinate)
     else:
-        x_coordinate = random.uniform(left_coordinate, right_coordinate)
-        y_coordinate = random.uniform(top_coordinate, bottom_coordinate)
+        left_boundry_coordinate = left_coordinate
+        right_boundry_coordinate = right_coordinate
+        top_boundry_coordinate = top_coordinate
+        bottom_boundry_coordinate = bottom_coordinate
+
+    x_coordinate = random.uniform(left_boundry_coordinate, right_boundry_coordinate)
+    y_coordinate = random.uniform(top_boundry_coordinate, bottom_boundry_coordinate)
 
     # Scroll if specified
     if scroll or container_css_selector:
@@ -57,13 +62,18 @@ def click(self: Node, scroll=False, container_css_selector: Optional[str] = None
 
         for step in route:
             browser.Input_dispatchMouseEvent(type='mouseMoved', x=step['x'], y=step['y'])
+    
+    if self.browser.settings.show_click_coords:
+        logger.log(f'Click coords: {x_coordinate} {current_y_coordinate}')
+        self.browser.show_click_target(x_coordinate,
+                                       current_y_coordinate,
+                                       left_boundry_coordinate,
+                                       right_boundry_coordinate,
+                                       top_boundry_coordinate - scroll_amount,
+                                       bottom_boundry_coordinate - scroll_amount)
 
     browser.Input_dispatchMouseEvent(type='mousePressed', x=x_coordinate, y=current_y_coordinate, button='left', clickCount=1)
     browser.Input_dispatchMouseEvent(type='mouseReleased', x=x_coordinate, y=current_y_coordinate, button='left', clickCount=1)
-    
-    if self.browser.show_click_coords:
-        logger.log(f'Click coords: {x_coordinate} {y_coordinate}')
-        self.browser.show_click_target(x_coordinate, y_coordinate)
 
     browser.x_coordinate = x_coordinate
     browser.y_coordinate = current_y_coordinate

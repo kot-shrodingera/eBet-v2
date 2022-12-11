@@ -113,14 +113,22 @@ class Browser:
             file.write(imgdat)
         log('File written')
 
-    def show_click_target(self, x_coordinate: float, y_coordinate: float) -> None:
+    def show_click_target(self,
+                          x_coordinate: float,
+                          y_coordinate: float,
+                          left_boundary_coordinate: float,
+                          right_boundary_coordinate: float,
+                          top_boundary_coordinate: float,
+                          bottom_boundary_coordinate: float) -> None:
         function = '''
 (x, y) => {
     const radius = 20;
     const color = 'red';
+    timeout = 10000;
+    delay = 100;
 
     const targetWrapperElement = document.createElement('div');
-    targetWrapperElement.style.position = 'absolute';
+    targetWrapperElement.style.position = 'fixed';
     targetWrapperElement.style.left = `${x - radius / 2}px`;
     targetWrapperElement.style.top = `${y - radius / 2}px`;
     targetWrapperElement.style.zIndex = 100000;
@@ -131,6 +139,8 @@ class Browser:
     targetWrapperElement.style.alignItems = 'center';
     targetWrapperElement.style.border = `2px solid ${color}`;
     targetWrapperElement.style.borderRadius = `${Math.floor(radius / 2) + 1}px`;
+    targetWrapperElement.style.pointerEvents = 'none';
+    targetWrapperElement.style.transition = `border-color ${timeout - delay}ms`;
 
     const targetElement = document.createElement('div');
     targetElement.style.width = '1px';
@@ -140,8 +150,38 @@ class Browser:
     targetWrapperElement.appendChild(targetElement);
     document.body.appendChild(targetWrapperElement);
     setTimeout(() => {
+        targetWrapperElement.style.borderColor = 'transparent';
+    }, delay);
+    setTimeout(() => {
         targetWrapperElement.remove();
-    }, 15000);
+    }, timeout);
 }
 '''
         self.run_js_function(function, [x_coordinate, y_coordinate])
+        function = '''
+(left, right, top, bottom) => {
+    const color = 'red';
+    timeout = 10000;
+    delay = 100;
+
+    const boundaryElement = document.createElement('div');
+    boundaryElement.style.position = 'fixed';
+    boundaryElement.style.left = `${left}px`;
+    boundaryElement.style.width = `${right - left}px`;
+    boundaryElement.style.top = `${top}px`;
+    boundaryElement.style.height = `${bottom - top}px`;
+    boundaryElement.style.zIndex = 100000;
+    boundaryElement.style.border = `1px solid ${color}`;
+    boundaryElement.style.pointerEvents = 'none';
+    boundaryElement.style.transition = `border-color ${timeout - delay}ms`;
+
+    document.body.appendChild(boundaryElement);
+    setTimeout(() => {
+        boundaryElement.style.borderColor = 'transparent';
+    }, delay);
+    setTimeout(() => {
+        boundaryElement.remove();
+    }, timeout);
+}
+'''
+        self.run_js_function(function, [left_boundary_coordinate, right_boundary_coordinate, top_boundary_coordinate, bottom_boundary_coordinate])
