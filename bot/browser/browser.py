@@ -1,3 +1,4 @@
+import base64
 from datetime import datetime
 from typing import Optional, Union, List, Any
 from ChromeController import Chrome as ChromeRemoteDebugInterface
@@ -91,3 +92,19 @@ class Browser:
                     raise BotError(f'Error in js function: no description', ErrorType.JS_EXCEPTION)
         log(result)
         raise BotError('Cannot get result from js function', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)
+    
+    def take_screenshot(self, path: str, fullPage = False) -> None:
+        if fullPage:
+            metrics = self.crdi.Page_getLayoutMetrics()
+            width, height = metrics['result']['contentSize']['width'], metrics['result']['contentSize']['height']
+            self.crdi.Emulation_setVisibleSize(width=width, height=height)
+            log(f'Seting width/height to {width}/{height}')
+        resp = self.crdi.Page_captureScreenshot()
+        log('Got metrics')
+        assert 'result' in resp
+        assert 'data' in resp['result']
+        imgdat = base64.b64decode(resp['result']['data'])
+        log('Decoded base64')
+        with open(path, 'wb') as file:
+            file.write(imgdat)
+        log('File written')
