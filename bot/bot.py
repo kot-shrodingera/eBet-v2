@@ -90,22 +90,29 @@ class Bot:
                     choice = input()
                     if choice.lower() == 'q':
                         return
-                
-                result = Workflow(self.settings, self.ebet_auth_token, self.browser, self.control, self.bot_version, self.start_time, self.placed_bets_count, self.bets_tries_count).run()
-                if type(result) is bool:
-                    if result is False:
-                        if self.control.current_action == 'stop':
-                            break
-                        logger.log('Press Enter to close Bot')
-                        input()
-                        break
-                    # else:
+                if self.settings.dev:
+                    logger.log('Dev Run')
+                    Workflow(self.settings, self.ebet_auth_token, self.browser, self.control, self.bot_version, self.start_time, self.placed_bets_count, self.bets_tries_count).dev()
+                    logger.log('Stop bot')
+                    while self.control.get_current_action() != 'stop':
+                        pass
+                    break
                 else:
-                    (placed_bets_count, bets_tries_count) = result
-                    self.placed_bets_count += placed_bets_count
-                    self.bets_tries_count += bets_tries_count
-                    logger.log('Restarting browser')
-                    self.control.set_current_action('init')
+                    result = Workflow(self.settings, self.ebet_auth_token, self.browser, self.control, self.bot_version, self.start_time, self.placed_bets_count, self.bets_tries_count).run()
+                    if type(result) is bool:
+                        if result is False:
+                            if self.control.current_action == 'stop':
+                                break
+                            logger.log('Press Enter to close Bot')
+                            input()
+                            break
+                        # else:
+                    else:
+                        (placed_bets_count, bets_tries_count) = result
+                        self.placed_bets_count += placed_bets_count
+                        self.bets_tries_count += bets_tries_count
+                        logger.log('Restarting browser')
+                        self.control.set_current_action('init')
                 
              
         self.control.set_current_action('stopped')   

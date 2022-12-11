@@ -215,3 +215,14 @@ class Workflow:
             finally:
                 logger.write_log(self.bet_tries_count)
 
+    def dev(self) -> None:
+        self.browser.go_to_url('https://uvi.gg/keyboard-tester/')
+        sleep(5)
+        self.browser.create_isolated_world()
+        self.browser.run_js_function('''
+() => {
+    monitorEvents(window, 'click');
+}
+''')
+        enter_key = self.browser.node('Enter Key', '.key.enter')
+        enter_key.click()

@@ -41,6 +41,7 @@ class Settings:
     dont_place_bets: bool
     dont_pause_on_porez: bool
     bets_request_timeout: Optional[int]
+    dev: bool
 
     def __init__(self, settings_file_name: str) -> None:
         settings = ConfigParser()
@@ -108,6 +109,7 @@ class Settings:
         set_property('dont_place_bets', 'dont_place_bets', bool, default=False)
         set_property('dont_pause_on_porez', 'dont_pause_on_porez', bool, default=False)
         set_property('bets_request_timeout', 'bets_request_timeout', int, required=False)
+        set_property('dev', 'dev', bool, default=False)
         
         if not 'chrome_binary_path' in settings['Settings']:
             standard_paths = [
