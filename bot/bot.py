@@ -61,10 +61,7 @@ class Bot:
                                additional_options=additional_options,
                                port=self.settings.chrome_port) as crdi:
                 self.browser = Browser(crdi,
-                                       self.settings.mouse_logs_mode,
-                                       self.settings.mouse_path_shrink,
-                                       self.settings.show_click_coords,
-                                       self.settings.narrow_click_coords)
+                                       self.settings)
                 
                 if self.first_launch:
                     self.first_launch = False

@@ -37,7 +37,6 @@ class Settings:
     
     window_width: Optional[int]
     window_height: Optional[int]
-    mouse_logs_mode: int
     placed_bets_limit: Optional[int]
     request_all_bets: bool
     dont_place_bets: bool
@@ -107,7 +106,6 @@ class Settings:
         
         set_property('window_width', 'window_width', int, required=False)
         set_property('window_height', 'window_height', int, required=False)
-        set_property('mouse_logs_mode', 'mouse_logs_mode', int, default=1) # TODO: validate [0, 1, 2]
         set_property('placed_bets_limit', 'placed_bets_limit', int, required=False)
         set_property('request_all_bets', 'request_all_bets', bool, default=False)
         set_property('dont_place_bets', 'dont_place_bets', bool, default=False)

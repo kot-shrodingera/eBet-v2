@@ -17,15 +17,15 @@ def click(self: Node, scroll=False, container_css_selector: Optional[str] = None
     bottom_coordinate = content_coords[5]
     left_coordinate = content_coords[0]
 
-    if self.browser.narrow_click_coords != 1:
+    if self.browser.settings.narrow_click_coords != 1:
         width = right_coordinate - left_coordinate
         height = bottom_coordinate - top_coordinate
         center_x_coordinate = left_coordinate + width / 2
         center_y_coordinate = top_coordinate + height / 2
-        left_boundry_coordinate = center_x_coordinate - self.browser.narrow_click_coords * width / 2
-        right_boundry_coordinate = center_x_coordinate + self.browser.narrow_click_coords * width / 2
-        top_boundry_coordinate = center_y_coordinate - self.browser.narrow_click_coords * height / 2
-        bottom_boundry_coordinate = center_y_coordinate + self.browser.narrow_click_coords * height / 2
+        left_boundry_coordinate = center_x_coordinate - self.browser.settings.narrow_click_coords * width / 2
+        right_boundry_coordinate = center_x_coordinate + self.browser.settings.narrow_click_coords * width / 2
+        top_boundry_coordinate = center_y_coordinate - self.browser.settings.narrow_click_coords * height / 2
+        bottom_boundry_coordinate = center_y_coordinate + self.browser.settings.narrow_click_coords * height / 2
         x_coordinate = random.uniform(left_boundry_coordinate, right_boundry_coordinate)
         y_coordinate = random.uniform(top_boundry_coordinate, bottom_boundry_coordinate)
     else:
@@ -51,9 +51,9 @@ def click(self: Node, scroll=False, container_css_selector: Optional[str] = None
         ending_point = {'x': x_coordinate, 'y': current_y_coordinate}
         route = path(starting_point, ending_point)
         
-        if self.mouse_path_shrink < 1 and self.mouse_path_shrink >= 0:
+        if self.browser.settings.mouse_path_shrink < 1 and self.browser.settings.mouse_path_shrink >= 0:
             steps_count = len(route)
-            leave_count = round(steps_count * self.mouse_path_shrink)
+            leave_count = round(steps_count * self.browser.settings.mouse_path_shrink)
             delete_count = steps_count - leave_count
             
             deleting_indecies = np.round(np.linspace(0, steps_count - 1, delete_count, endpoint=False)).astype(int)

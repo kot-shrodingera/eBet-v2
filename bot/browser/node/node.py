@@ -8,10 +8,9 @@ from ...errors import ErrorType, BotError
 from ...logger import log
 
 class Node:
+    browser: Browser
     name: str
     remote_object_id: Optional[str]
-    mouse_logs_mode: int
-    mouse_path_shrink: float
 
     def __init__(self,
                  browser: Browser,
@@ -25,8 +24,6 @@ class Node:
                  not_found_error_type: Optional[ErrorType] = None) -> None:
         self.browser = browser
         self.name = name
-        self.mouse_logs_mode = browser.mouse_logs_mode
-        self.mouse_path_shrink = browser.mouse_path_shrink
         if remote_object_id:
             self.remote_object_id = remote_object_id
             return

@@ -23,23 +23,23 @@ def click(self: Node, container_css_selector: Optional[str] = None) -> None:
 
         step_1 = datetime.now()
         diff_1 = step_1 - start_time
-        if self.mouse_logs_mode > 1:
-            logger.log(f'Got box model (took {diff_1.seconds}.{diff_1.microseconds // 1000:03}s)')
+        # if self.mouse_logs_mode > 1:
+        #     logger.log(f'Got box model (took {diff_1.seconds}.{diff_1.microseconds // 1000:03}s)')
         
         element_x_coordinate = random.uniform(left_coordinate, right_coordinate)
         element_y_coordinate = random.uniform(bottom_coordinate, top_coordinate)
         
         step_2 = datetime.now()
         diff_2 = step_2 - step_1
-        if self.mouse_logs_mode > 1:
-            logger.log(f'Got click coordinates (took {diff_2.seconds}.{diff_2.microseconds // 1000:03}s)')
+        # if self.mouse_logs_mode > 1:
+        #     logger.log(f'Got click coordinates (took {diff_2.seconds}.{diff_2.microseconds // 1000:03}s)')
         
         scroll_amount: int = self.browser.crdi.scroll_to(element_y_coordinate, container_css_selector=container_css_selector)
         
         step_3 = datetime.now()
         diff_3 = step_3 - step_2
-        if self.mouse_logs_mode > 1:
-            logger.log(f'Scrolled (took {diff_3.seconds}.{diff_3.microseconds // 1000:03}s)')
+        # if self.mouse_logs_mode > 1:
+        #     logger.log(f'Scrolled (took {diff_3.seconds}.{diff_3.microseconds // 1000:03}s)')
         
         current_y_coordinate = element_y_coordinate - scroll_amount
         
@@ -80,11 +80,11 @@ setTimeout(() => {
             
             step_4 = datetime.now()
             diff_4 = step_4 - step_3
-            if self.mouse_logs_mode > 1:
-                logger.log(f'Generated mouse path ({steps_count} steps) (took {diff_4.seconds}.{diff_4.microseconds // 1000:03}s)')
+            # if self.mouse_logs_mode > 1:
+            #     logger.log(f'Generated mouse path ({steps_count} steps) (took {diff_4.seconds}.{diff_4.microseconds // 1000:03}s)')
             
-            if self.mouse_path_shrink < 1 and self.mouse_path_shrink >= 0:
-                leave_count = round(steps_count * self.mouse_path_shrink)
+            if self.browser.settings.mouse_path_shrink < 1 and self.browser.settings.mouse_path_shrink >= 0:
+                leave_count = round(steps_count * self.browser.settings.mouse_path_shrink)
                 delete_count = steps_count - leave_count
                 
                 deleting_indecies = np.round(np.linspace(0, steps_count - 1, delete_count, endpoint=False)).astype(int)
@@ -92,7 +92,7 @@ setTimeout(() => {
                 route = np.delete(route, deleting_indecies) # pyright: ignore [reportGeneralTypeIssues]
                 old_steps_count = steps_count
                 steps_count = len(route)
-                logger.log(f'Shrinked mouse path ({100 * self.mouse_path_shrink}%: from {old_steps_count} to {steps_count} steps)')
+                logger.log(f'Shrinked mouse path ({100 * self.browser.settings.mouse_path_shrink}%: from {old_steps_count} to {steps_count} steps)')
                 
 
             step_number = 1
@@ -106,8 +106,8 @@ setTimeout(() => {
                 delta_y = new_y - prev_y
                 delta_length = math.sqrt(math.pow(delta_x, 2) + math.pow(delta_y, 2))
                 full_length += delta_length
-                if self.mouse_logs_mode > 1:
-                    logger.log(f'Step {step_number:03}: [{delta_x:7.3f}, {delta_y:7.3f}], length: {delta_length:6.3f}... ', end_line=False)
+                # if self.mouse_logs_mode > 1:
+                #     logger.log(f'Step {step_number:03}: [{delta_x:7.3f}, {delta_y:7.3f}], length: {delta_length:6.3f}... ', end_line=False)
                 
                 self.browser.crdi.Input_dispatchMouseEvent(type='mouseMoved', x=step['x'], y=step['y'])
                 
@@ -120,8 +120,8 @@ setTimeout(() => {
                     speed = (delta_length / seconds_float) / 1000
                 else:
                     speed = 0
-                if self.mouse_logs_mode > 1:
-                    logger.log(f'Done (took {miliseconds_float:7.3f}ms) ({speed:5.2f} kpx/s)')
+                # if self.mouse_logs_mode > 1:
+                #     logger.log(f'Done (took {miliseconds_float:7.3f}ms) ({speed:5.2f} kpx/s)')
                 
                 if min_step == 0 or min_step > miliseconds_float:
                     min_step = miliseconds_float
@@ -141,9 +141,9 @@ setTimeout(() => {
             speed = (full_length / diff_5_seconds_float) / 1000
         else:
             speed = 0
-        if self.mouse_logs_mode > 0:
-            logger.log(f'Mouse moved (took {diff_5_seconds_float:.3f}s) (length: {full_length:.2f}px. speed: {speed:5.2f} kpx/s)')
-            logger.log(f'Steps count: {steps_count}, min: {min_step}ms, avg: {0 if steps_count == 0 else 1000 * diff_5_seconds_float / steps_count:.3f}ms, max: {max_step}ms')
+        # if self.mouse_logs_mode > 0:
+        #     logger.log(f'Mouse moved (took {diff_5_seconds_float:.3f}s) (length: {full_length:.2f}px. speed: {speed:5.2f} kpx/s)')
+        #     logger.log(f'Steps count: {steps_count}, min: {min_step}ms, avg: {0 if steps_count == 0 else 1000 * diff_5_seconds_float / steps_count:.3f}ms, max: {max_step}ms')
 
         script = '''
 (x, y) => {
@@ -178,8 +178,8 @@ setTimeout(() => {
 
         step_6 = datetime.now()
         diff_6 = step_6 - step_5
-        if self.mouse_logs_mode > 1:
-            logger.log(f'Mouse clicked (took {diff_6.seconds}.{diff_6.microseconds // 1000:03}s)')
+        # if self.mouse_logs_mode > 1:
+        #     logger.log(f'Mouse clicked (took {diff_6.seconds}.{diff_6.microseconds // 1000:03}s)')
         
         self.browser.crdi.x_coordinate = element_x_coordinate
         self.browser.crdi.y_coordinate = current_y_coordinate

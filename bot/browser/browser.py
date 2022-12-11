@@ -5,22 +5,17 @@ from ChromeController import Chrome as ChromeRemoteDebugInterface
 
 from ..errors import ErrorType, BotError
 
+from ..settings import Settings
 from ..logger import log
 
 
 class Browser:
     crdi: ChromeRemoteDebugInterface
-    mouse_logs_mode: int
-    mouse_path_shrink: float
-    show_click_coords: bool
-    narrow_click_coords: float
+    settings: Settings
     
-    def __init__(self, crdi: ChromeRemoteDebugInterface, mouse_logs_mode: int, mouse_path_shrink: float, show_click_coords: bool, narrow_click_coords: float) -> None:
+    def __init__(self, crdi: ChromeRemoteDebugInterface, settings: Settings) -> None:
         self.crdi = crdi
-        self.mouse_logs_mode = mouse_logs_mode
-        self.mouse_path_shrink = mouse_path_shrink
-        self.show_click_coords = show_click_coords
-        self.narrow_click_coords = narrow_click_coords
+        self.settings = settings
     
     js_argument = Union[bool, str, int, float, None]
     
