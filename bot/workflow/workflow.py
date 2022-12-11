@@ -125,7 +125,8 @@ class Workflow:
                     try:
                         steps.initialize(self)
                         logger.write_log(self.bet_tries_count)
-                        self.control.set_current_action('running')
+                        if self.control.get_current_action() == 'init':
+                            self.control.set_current_action('running')
                     except:
                         # TODO: loop if porez
                         if (self.porez and not self.settings.dont_pause_on_porez) or self.restrict:
