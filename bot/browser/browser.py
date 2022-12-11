@@ -12,11 +12,15 @@ class Browser:
     crdi: ChromeRemoteDebugInterface
     mouse_logs_mode: int
     mouse_path_shrink: float
+    show_click_coords: bool
+    narrow_click_coords: float
     
-    def __init__(self, crdi: ChromeRemoteDebugInterface, mouse_logs_mode: int, mouse_path_shrink: float = 1) -> None:
+    def __init__(self, crdi: ChromeRemoteDebugInterface, mouse_logs_mode: int, mouse_path_shrink: float, show_click_coords: bool, narrow_click_coords: float) -> None:
         self.crdi = crdi
         self.mouse_logs_mode = mouse_logs_mode
         self.mouse_path_shrink = mouse_path_shrink
+        self.show_click_coords = show_click_coords
+        self.narrow_click_coords = narrow_click_coords
     
     js_argument = Union[bool, str, int, float, None]
     
@@ -108,3 +112,36 @@ class Browser:
         with open(path, 'wb') as file:
             file.write(imgdat)
         log('File written')
+
+    def show_click_target(self, x_coordinate: float, y_coordinate: float) -> None:
+        function = '''
+(x, y) => {
+    const radius = 20;
+    const color = 'red';
+
+    const targetWrapperElement = document.createElement('div');
+    targetWrapperElement.style.position = 'absolute';
+    targetWrapperElement.style.left = `${x - radius / 2}px`;
+    targetWrapperElement.style.top = `${y - radius / 2}px`;
+    targetWrapperElement.style.zIndex = 100000;
+    targetWrapperElement.style.width = `${radius + 1}px`;
+    targetWrapperElement.style.height = `${radius + 1}px`;
+    targetWrapperElement.style.display = 'flex';
+    targetWrapperElement.style.justifyContent = 'center';
+    targetWrapperElement.style.alignItems = 'center';
+    targetWrapperElement.style.border = `2px solid ${color}`;
+    targetWrapperElement.style.borderRadius = `${Math.floor(radius / 2) + 1}px`;
+
+    const targetElement = document.createElement('div');
+    targetElement.style.width = '1px';
+    targetElement.style.height = '1px';
+    targetElement.style.backgroundColor = color;
+
+    targetWrapperElement.appendChild(targetElement);
+    document.body.appendChild(targetWrapperElement);
+    setTimeout(() => {
+        targetWrapperElement.remove();
+    }, 15000);
+}
+'''
+        self.run_js_function(function, [x_coordinate, y_coordinate])
