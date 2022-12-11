@@ -9,11 +9,11 @@ from ... import logger
 
 def initialize(self: Workflow) -> None:
     logger.header('Initialize')
-    self.browser.crdi.get(self.bet365_inplay_url)
-    logger.log('Bet365 tab opened')
+    # self.browser.crdi.get(self.bet365_inplay_url)
+    # logger.log('Bet365 tab opened')
 
-    self.browser.create_isolated_world()
-    sleep(0.25)
+    # self.browser.create_isolated_world()
+    # sleep(0.25)
     authorize(self)
     
     clear_betslip(self)

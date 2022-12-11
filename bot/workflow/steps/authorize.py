@@ -14,7 +14,8 @@ password_input_selector = '.lms-StandardLogin_Password'
 login_button_selector = '.lms-LoginButton'
 
 def authorize(self: Workflow) -> None:
-    self.browser.go_to_url(self.bet365_my_bets_url)
+    self.browser.go_to_url(self.bet365_inplay_url)
+    logger.log('Bet365 In-Play opened')
     
     self.browser.create_isolated_world()
     sleep(0.25)
@@ -64,9 +65,12 @@ def authorize(self: Workflow) -> None:
     bet365.close_popups(self.browser)
 
     self.browser.go_to_url(self.bet365_my_bets_url)
+    logger.log('Bet365 My Bets opened')
     
     if not bet365.check_cashout_tab(self.browser):
         self.porez = True
-        if self.settings.dont_pause_on_porez:
-            return
-        raise BotError('Pause on Porez', ErrorType.PAUSE_ON_POREZ)
+        if not self.settings.dont_pause_on_porez:
+            raise BotError('Pause on Porez', ErrorType.PAUSE_ON_POREZ)
+
+    self.browser.go_to_url(self.bet365_inplay_url)
+    logger.log('Bet365 In-Play opened')
