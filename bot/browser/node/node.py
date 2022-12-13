@@ -96,7 +96,13 @@ class Node:
         except Exception as e:
             log(f'Error getting box model of node "{self.name}" [{self.remote_object_id}]')
             raise e
-        
+    
+    def is_visible(self) -> bool:
+        try:
+            self.browser.crdi.DOM_getBoxModel(objectId=self.remote_object_id)
+            return True
+        except Exception as e:
+            return False
         
     def scroll_to(self, element_coordinate=None, container_css_selector=None, scrollable_section_css_selector=None, amount=None) -> Any:
         from ._scroll_to import scroll_to
