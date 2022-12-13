@@ -34,6 +34,9 @@ def open_selection(self: Workflow) -> None:
                 logger.log(f'Find Try №{find_try} of {find_tries_limit}')
                 
                 market_title = bet365.get_market_title(self.browser, self.bet_details['market'])
+                if not isinstance(market_title, Node) and not isinstance(market_title, str):
+                    raise BotError('Get market title js function wrong return type', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)
+                logger.log(f'Searching for market {self.bet_details["market"]}')
                 if not isinstance(market_title, Node):
                     if find_try == find_tries_limit:
                         logger.log(market_title)
@@ -44,6 +47,8 @@ def open_selection(self: Workflow) -> None:
                 if class_list and market_opened_class not in class_list:
                     logger.log('Market Title is not opened. Opening')
                     market_title_text = bet365.get_market_title_text(self.browser, self.bet_details['market'])
+                    if not isinstance(market_title_text, Node) and not isinstance(market_title_text, str):
+                        raise BotError('Get market title text js function wrong return type', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)
                     if not isinstance(market_title_text, Node):
                         logger.log(market_title_text)
                         continue
@@ -53,6 +58,8 @@ def open_selection(self: Workflow) -> None:
                 logger.log('Market is openned')
                 
                 selection_button = bet365.get_selection_button(self.browser, self.bet_details['market'], self.bet_details['column'], self.bet_details['selection'])
+                if not isinstance(selection_button, Node) and not isinstance(selection_button, str):
+                    raise BotError('Get selection button js function wrong return type', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)
                 if not isinstance(selection_button, Node):
                     logger.log(selection_button)
                     continue

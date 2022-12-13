@@ -1,6 +1,6 @@
 import base64
 from datetime import datetime
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Any, Type
 from ChromeController import Chrome as ChromeRemoteDebugInterface
 
 from ..errors import ErrorType, BotError
@@ -75,22 +75,30 @@ class Browser:
             pass
         elif 'result' in result and 'result' in result['result']:
             result = result['result']['result']
-            if 'objectId' in result and 'subtype' in result and result['subtype'] == 'node':
-                # log('Result is node objectId')
-                return self.node(node_name, remote_object_id=result['objectId'])
-            if 'type' in result and result['type'] == 'string' and 'value' in result:
-                # log('Result is string')
-                string: str = result['value']
-                return string
-            if 'subtype' in result and result['subtype'] == 'error':
-                # log('Result is error')
-                if 'description' in result:
-                    description = str(result['description']).replace('\\n', '\n')
-                    raise BotError(f'Error in js function: {description}', ErrorType.JS_EXCEPTION)
-                else:
-                    raise BotError(f'Error in js function: no description', ErrorType.JS_EXCEPTION)
+            if 'type' in result:
+                if result['type'] == 'string' and 'value' in result:
+                    # log('Result is string')
+                    string: str = result['value']
+                    return string
+                if result['type'] == 'number' and 'value' in result:
+                    # log('Result is number')
+                    number: float = result['value']
+                    return number
+                if result['type'] == 'object':
+                    if 'subtype' in result:
+                        if result['subtype'] == 'node' and 'objectId' in result:
+                            # log('Result is node objectId')
+                            return self.node(node_name, remote_object_id=result['objectId'])
+                        if result['subtype'] == 'error':
+                            # log('Result is error')
+                            if 'description' in result:
+                                description = str(result['description']).replace('\\n', '\n')
+                                raise BotError(f'Error in js function: {description}', ErrorType.JS_EXCEPTION)
+                            else:
+                                raise BotError(f'Error in js function: no description', ErrorType.JS_EXCEPTION)
+                raise BotError('Unknown return type of js function', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT, { 'return_type': result['type'], 'return_subtype': result['subtype'], 'result': result})
         log(result)
-        raise BotError('Cannot get result from js function', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)
+        raise BotError('Cannot get result from js function', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT, {'result': result})
     
     def take_screenshot(self, path: str, fullPage = False) -> None:
         if fullPage:
