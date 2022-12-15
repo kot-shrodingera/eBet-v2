@@ -1,4 +1,4 @@
-# from ... import logger
+from ... import logger
 from ...browser import Browser
 
 # member_icon_selector = '.hm-MainHeaderMembersWide_MembersMenuIcon'
@@ -27,3 +27,4 @@ def refresh_balance(browser: Browser) -> None:
     Locator.user._balance.refreshBalance();
 }
 ''')
+    logger.log('Balance updated (JS)')
