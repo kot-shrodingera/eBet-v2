@@ -35,7 +35,7 @@ def close_popups(browser: Browser) -> None:
     # .pm-MessageOverlayCloseButton is for new messages
     # .llm-LastLoginModule_Button is the last login time (only shows up for certain countries)
     # .pm-PushTargetedMessageOverlay_CloseButton is for new messages
-    popup_selectors = '.pm-MessageOverlayCloseButton, .alm-ActivityLimitStayButton, .pm-FreeBetsPushGraphicCloseIcon, .llm-LastLoginModule_Button, .pm-PushTargetedMessageOverlay_CloseButton, .pm-MessageOverlayCloseButton'
+    popup_selectors = '.pm-MessageOverlayCloseButton, .alm-ActivityLimitStayButton, .alm-InactivityAlertRemainButton, .pm-FreeBetsPushGraphicCloseIcon, .llm-LastLoginModule_Button, .pm-PushTargetedMessageOverlay_CloseButton'
     if browser.crdi.check(popup_selectors):
         popups = browser.crdi.finds(popup_selectors)
         for popup in popups:
