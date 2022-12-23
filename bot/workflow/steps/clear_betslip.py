@@ -12,11 +12,13 @@ betslip_selector = '.bss-StandardBetslip:not(.bss-StandardBetslip-hidden)'
 betslip_single_selector = '.bss-StandardBetslip.bs-AnimationHelper_Single'
 betslip_collapsed_selector = '.bss-StandardBetslip.bs-AnimationHelper_Collapsed' # same match
 betslip_condensed_selector = '.bss-StandardBetslip.bs-AnimationHelper_Condensed' # different matches
+betslip_error_selector = '.bss-StandardBetslip.bss-StandardBetslip_Error'
 
 receipt_done_button_selector = '.bss-ReceiptContent_Done'
 remove_bet_button_selector = '.bss-RemoveButton'
 collapsed_betslip_selector = '.bss-StandardBetslip.bs-AnimationHelper_Collapsed'
 expanded_betslip_selector = '.bss-StandardBetslip.bs-AnimationHelper_Expanded'
+close_error_button_selector = '.bs-PlaceBetErrorMessage_Remove'
 
 def is_clear_betslip(self: Workflow) -> bool:
     return not self.browser.node('Betslip Any', betslip_selector, 1, required=False)
@@ -73,6 +75,17 @@ def clear_betslip(self: Workflow) -> None:
         sleep(after_clear_delay)
         if not is_clear_betslip(self):
             raise BotError('Could not clear condensed betslip', ErrorType.COULD_NOT_CLEAR_BETSLIP)
+        logger.log('Betslip cleared')
+        return
+    
+    betslip_error = self.browser.node('Betslip Error', betslip_error_selector, 1, required=False)
+    if betslip_error:
+        close_error_button = self.browser.node('Close Error Button', close_error_button_selector, 1)
+        logger.log(f'Closing error and waiting {after_clear_delay}s...')
+        close_error_button.click()
+        sleep(after_clear_delay)
+        if not is_clear_betslip(self):
+            raise BotError('Could not clear error betslip', ErrorType.COULD_NOT_CLEAR_BETSLIP)
         logger.log('Betslip cleared')
         return
     
