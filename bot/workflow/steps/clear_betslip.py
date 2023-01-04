@@ -67,6 +67,17 @@ def clear_betslip(self: Workflow) -> None:
         logger.log('Betslip cleared')
         return
     
+    betslip_expanded = self.browser.node('Betslip Expanded', expanded_betslip_selector, 1, required=False)
+    if betslip_expanded:
+        while remove_bet_button := self.browser.node('Remove Bet Button', remove_bet_button_selector, 1, required=False):
+            logger.log(f'Removing bet and waiting {after_clear_delay}s...')
+            remove_bet_button.click()
+            sleep(after_clear_delay)
+        if not is_clear_betslip(self):
+            raise BotError('Could not clear collapsed betslip', ErrorType.COULD_NOT_CLEAR_BETSLIP)
+        logger.log('Betslip cleared')
+        return
+    
     betslip_condensed = self.browser.node('Betslip Condensed', betslip_condensed_selector, 1, required=False)
     if betslip_condensed:
         remove_bet_button = self.browser.node('Remove Bet Button', remove_bet_button_selector, 1)
