@@ -69,8 +69,8 @@ def write_log(bet_try: int) -> None:
     global current_log
 
     now = datetime.now()
-    file_name = now.strftime(f'%Y-%m-%d-%H-%M-%S-{bet_try}.log')
-    os.makedirs(os.path.dirname('./logs/'), exist_ok=True)
-    with open(f'./logs/{file_name}', 'w', encoding='utf-8') as log_file:
+    log_path = now.strftime(f'./logs/%Y-%m-%d/%H-%M-%S-{bet_try}.log')
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'w', encoding='utf-8') as log_file:
         log_file.write(current_log)
         current_log = ''
