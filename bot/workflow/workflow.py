@@ -211,7 +211,14 @@ class Workflow:
                 else:
                     traceback_string = traceback.format_exc()
                     logger.log(traceback_string)
-                    error_type = ErrorType.CHROME_DIED if isinstance(error, (cr_exceptions.ChromeCommunicationsError, ConnectionAbortedError, AssertionError)) else ErrorType.UNCAUGHT_EXCEPTION
+                    if isinstance(error, (cr_exceptions.ChromeControllerException,
+                                          cr_exceptions.ChromeCommunicationsError,
+                                          ConnectionAbortedError,
+                                          ConnectionResetError,
+                                          AssertionError)):
+                        error_type = ErrorType.CHROME_DIED
+                    else:
+                        error_type = ErrorType.UNCAUGHT_EXCEPTION
                     self.last_error = BotError(str(error), error_type, {"traceback": traceback_string})
             finally:
                 logger.write_log(self.bet_tries_count)
