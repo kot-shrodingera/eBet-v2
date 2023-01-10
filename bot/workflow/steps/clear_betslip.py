@@ -31,6 +31,17 @@ def clear_betslip(self: Workflow) -> None:
         logger.log('Betslip is empty')
         return
     
+    betslip_error = self.browser.node('Betslip Error', betslip_error_selector, 1, required=False)
+    if betslip_error:
+        close_error_button = self.browser.node('Close Error Button', close_error_button_selector, 1)
+        logger.log(f'Closing error and waiting {after_clear_delay}s...')
+        close_error_button.click()
+        sleep(after_clear_delay)
+        if not is_clear_betslip(self):
+            raise BotError('Could not clear error betslip', ErrorType.COULD_NOT_CLEAR_BETSLIP)
+        logger.log('Betslip cleared')
+        return
+    
     receipt_done_button = self.browser.node('Receipt Done Button', receipt_done_button_selector, 1, required=False)
     if receipt_done_button:
         logger.log(f'Removing bet and waiting {after_clear_delay}s...')
@@ -86,17 +97,6 @@ def clear_betslip(self: Workflow) -> None:
         sleep(after_clear_delay)
         if not is_clear_betslip(self):
             raise BotError('Could not clear condensed betslip', ErrorType.COULD_NOT_CLEAR_BETSLIP)
-        logger.log('Betslip cleared')
-        return
-    
-    betslip_error = self.browser.node('Betslip Error', betslip_error_selector, 1, required=False)
-    if betslip_error:
-        close_error_button = self.browser.node('Close Error Button', close_error_button_selector, 1)
-        logger.log(f'Closing error and waiting {after_clear_delay}s...')
-        close_error_button.click()
-        sleep(after_clear_delay)
-        if not is_clear_betslip(self):
-            raise BotError('Could not clear error betslip', ErrorType.COULD_NOT_CLEAR_BETSLIP)
         logger.log('Betslip cleared')
         return
     
