@@ -35,6 +35,7 @@ class Settings:
     show_click_coords: bool
     narrow_click_coords: float
     js_scroll: bool
+    use_bet_credits: bool
     
     window_width: Optional[int]
     window_height: Optional[int]
@@ -105,6 +106,7 @@ class Settings:
         set_property('show_click_coords', 'show_click_coords', bool, default=False)
         set_property('narrow_click_coords', 'narrow_click_coords', float, default=1) # TODO: validate [0.0 - 1.0]
         set_property('js_scroll', 'js_scroll', bool, default=False)
+        set_property('use_bet_credits', 'use_bet_credits', bool, default=False)
         
         set_property('window_width', 'window_width', int, required=False)
         set_property('window_height', 'window_height', int, required=False)
