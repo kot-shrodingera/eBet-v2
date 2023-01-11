@@ -178,6 +178,8 @@ class Workflow:
                     
                     steps.check_bet(self, initial=True)
                     
+                    steps.handle_bet_bonuses(self)
+                    
                     if self.settings.dont_place_bets:
                         logger.log('Bet placing disabled')
                         delay = self.settings.placed_bet_to_new_try_delay
