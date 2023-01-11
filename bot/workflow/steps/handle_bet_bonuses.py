@@ -5,7 +5,7 @@ from .. import Workflow
 from ... import logger
 from ...errors import BotError, ErrorType
 
-bet_credits_checkbox_selector = '.bsc-BetCreditsHeader_CheckBox'
+bet_credits_checkbox_selector = '.bsc-BetCreditsHeader:not(.bsc-BetCreditsHeader_Hide) .bsc-BetCreditsHeader_CheckBox'
 bet_credits_checkbox_selected_class = 'bsc-BetCreditsHeader_CheckBox-selected'
 
 def handle_bet_bonuses(self: Workflow):
