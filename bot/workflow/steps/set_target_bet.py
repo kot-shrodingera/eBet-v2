@@ -39,7 +39,7 @@ def set_target_bet(self: Workflow) -> None:
     try:
         query_data = {
             'api[method]': 'get_forks',
-            'api[version]': '2',
+            'api[version]': '3',
             'bot_version': self.bot_version,
             'get_progrev_bets': '1' if self.warm_up or self.settings.request_all_bets else '0',
         }
@@ -64,9 +64,12 @@ def set_target_bet(self: Workflow) -> None:
             'data[last_try_error]': (None, last_try_error),
         }
         if self.settings.bets_request_timeout:
-            request_data['data[timeout]'] = (None, str(self.settings.bets_request_timeout))
+            timeout = self.settings.bets_request_timeout
+            request_data['data[timeout]'] = (None, str(timeout))
+        else:
+            timeout = 320
         bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
-        response = requests.post(bets_request_url, files=request_data, timeout=65)
+        response = requests.post(bets_request_url, files=request_data, timeout=timeout + 5)
     except requests.Timeout:
         self.target_bet = None
         raise BotError('Request timeout', ErrorType.BETS_REQUEST_TIMEOUT)
