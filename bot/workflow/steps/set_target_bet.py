@@ -14,7 +14,7 @@ from ...errors import BotError, ErrorType
 def target_bet_predicate(self: Workflow, bet) -> bool:
     bk_id_std = bet['bk_id_std']
     bet_name = bet['bet365_bet_name']
-    bet_unique_key = bet['bet_unique_key']
+    bet_unique_key = bet['bot_bet_unique_key']
     placed_events = self.placed_bets['events']
     if bk_id_std in placed_events:
         placed_event = placed_events[bk_id_std]

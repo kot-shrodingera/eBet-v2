@@ -27,7 +27,7 @@ def after_successful_bet(self: Workflow) -> None:
     
     bk_id_std = self.target_bet['bk_id_std']
     bet_name = self.target_bet['bet365_bet_name']
-    bet_unique_key = self.target_bet['bet_unique_key']
+    bet_unique_key = self.target_bet['bot_bet_unique_key']
     
     self.placed_bets_count += 1
     
