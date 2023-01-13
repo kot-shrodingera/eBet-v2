@@ -68,6 +68,7 @@ def set_target_bet(self: Workflow) -> None:
         bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
         response = requests.post(bets_request_url, files=request_data, timeout=65)
     except requests.Timeout:
+        self.target_bet = None
         raise BotError('Request timeout', ErrorType.BETS_REQUEST_TIMEOUT)
 
     try:
