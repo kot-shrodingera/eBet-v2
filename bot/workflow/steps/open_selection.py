@@ -15,30 +15,28 @@ betslip_selector = '.bs-AnimationHelper_ContainerNoScale'
 
 def open_selection(self: Workflow) -> None:
     open_try = 0
-    open_tries_limit = 3 # TODO: set limit in settings
     last_error: BotError = BotError('Unknown Open Selection Error') # Will always be redefined?
     
-    while open_try < open_tries_limit:
+    while open_try < self.settings.open_tries_limit:
         open_try += 1
-        logger.log(f'Open Try №{open_try} of {open_tries_limit}')
+        logger.log(f'Open Try №{open_try} of {self.settings.open_tries_limit}')
         try:
             logger.log(f'Opening Selection {self.bet_details["market"]}|{self.bet_details["column"]}|{self.bet_details["selection"]}')
             selection_button = None
             find_try = 0
-            find_tries_limit = 10
             
-            while find_try < find_tries_limit:
+            while find_try < self.settings.find_tries_limit:
                 find_try += 1
                 if find_try > 1:
                     sleep(0.2)
-                logger.log(f'Find Try №{find_try} of {find_tries_limit}')
+                logger.log(f'Find Try №{find_try} of {self.settings.find_tries_limit}')
                 
                 market_title = bet365.get_market_title(self.browser, self.bet_details['market'])
                 if not isinstance(market_title, Node) and not isinstance(market_title, str):
                     raise BotError('Get market title js function wrong return type', ErrorType.CANNOT_GET_JS_FUNCTION_RESULT)
                 logger.log(f'Searching for market {self.bet_details["market"]}')
                 if not isinstance(market_title, Node):
-                    if find_try == find_tries_limit:
+                    if find_try == self.settings.find_tries_limit:
                         logger.log(market_title)
                     continue
                 logger.log('Market Title found')
@@ -81,7 +79,8 @@ def open_selection(self: Workflow) -> None:
             
             selection_button.click(container_css_selector='.ipe-EventViewDetailScroller', scrollable_section_css_selector='.ipe-EventViewDetail_ContentContainer')
 
-            self.browser.node('Betslip', betslip_selector, not_found_error='Betslip not opened', not_found_error_type=ErrorType.BETSLIP_DID_NOT_OPENED)
+            logger.log(f'self.settings.open_coupon_wait_time = {self.settings.open_coupon_wait_time}')
+            self.browser.node('Betslip', betslip_selector, timeout=self.settings.open_coupon_wait_time, not_found_error='Betslip not opened', not_found_error_type=ErrorType.BETSLIP_DID_NOT_OPENED)
                     
             steps.check_bet_name(self)
             
