@@ -79,7 +79,6 @@ def open_selection(self: Workflow) -> None:
             
             selection_button.click(container_css_selector='.ipe-EventViewDetailScroller', scrollable_section_css_selector='.ipe-EventViewDetail_ContentContainer')
 
-            logger.log(f'self.settings.open_coupon_wait_time = {self.settings.open_coupon_wait_time}')
             self.browser.node('Betslip', betslip_selector, timeout=self.settings.open_coupon_wait_time, not_found_error='Betslip not opened', not_found_error_type=ErrorType.BETSLIP_DID_NOT_OPENED)
                     
             steps.check_bet_name(self)
