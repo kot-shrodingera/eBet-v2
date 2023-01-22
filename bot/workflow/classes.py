@@ -1,3 +1,5 @@
+import datetime
+
 from typing import TypedDict, Optional, Dict
 
 # data in bets response
@@ -45,7 +47,7 @@ class Bet(TypedDict):
 
 
 class PlacedUnique(TypedDict):
-    count: int
+    timestamp: str
 
 class PlacedSelection(TypedDict):
     count: int

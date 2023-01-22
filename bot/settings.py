@@ -21,6 +21,7 @@ class Settings:
     max_same_bets_count: int
     max_event_bets_count: int
     warm_up_bets_limit: Optional[int]
+    history_limit_minutes: int
     
     placed_bet_to_new_try_delay: Optional[float]
     placed_bet_to_open_delay: Optional[float]
@@ -95,6 +96,7 @@ class Settings:
         set_property('max_same_bets_count', 'max_same_bets_count', int)
         set_property('max_event_bets_count', 'max_event_bets_count', int)
         set_property('warm_up_bets_limit', 'warm_up_bets_limit', int, required=False)
+        set_property('history_limit_minutes', 'history_limit_minutes', int, default=20)
         
         set_property('placed_bet_to_new_try_delay', 'placed_bet_to_new_try_delay', float, required=False)
         set_property('placed_bet_to_open_delay', 'placed_bet_to_open_delay', float, required=False)

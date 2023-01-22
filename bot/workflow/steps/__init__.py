@@ -11,5 +11,8 @@ from .check_bet_name import check_bet_name as check_bet_name
 from .set_balance_before_place_bet import set_balance_before_place_bet as set_balance_before_place_bet
 from .place_bet import place_bet as place_bet
 from .after_successful_bet import after_successful_bet as after_successful_bet
+from .clear_old_placed_bets import clear_old_placed_bets as clear_old_placed_bets
+from .update_placed_bets import update_placed_bets as update_placed_bets
+from .send_placed_bet import send_placed_bet as send_placed_bet
 from .update_stats import update_stats as update_stats
 from .handle_bet_bonuses import handle_bet_bonuses as handle_bet_bonuses
