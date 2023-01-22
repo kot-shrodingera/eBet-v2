@@ -16,3 +16,4 @@ from .update_placed_bets import update_placed_bets as update_placed_bets
 from .send_placed_bet import send_placed_bet as send_placed_bet
 from .update_stats import update_stats as update_stats
 from .handle_bet_bonuses import handle_bet_bonuses as handle_bet_bonuses
+from .get_placed_bets_keys import get_placed_bets_keys as get_placed_bets_keys

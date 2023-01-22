@@ -4,8 +4,7 @@ import json
 
 from datetime import datetime
 
-from .. import Workflow
-from ..  import bet365
+from .. import Workflow, bet365, steps
 
 from ... import logger
 from ...errors import BotError, ErrorType
@@ -62,6 +61,7 @@ def set_target_bet(self: Workflow) -> None:
             'data[is_porez]': (None, '1' if self.porez else '0'),
             'data[is_restrict]': (None, '1' if self.restrict else '0'),
             'data[last_try_error]': (None, last_try_error),
+            'data[last_bet_uniq_keys]': (None, json.dumps(steps.get_placed_bets_keys(self))),
         }
         if self.settings.bets_request_timeout:
             timeout = self.settings.bets_request_timeout
