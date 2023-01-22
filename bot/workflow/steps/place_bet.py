@@ -23,6 +23,8 @@ def place_bet(self: Workflow) -> None:
         if delay > 0:
             logger.log(f'Placed Bet to Place delay: {delay:.2f} seconds')
             sleep(delay)
+            
+    place_bet_result = 'No tries'
 
     while place_try < place_tries_limit:
         place_try += 1
@@ -89,4 +91,4 @@ def place_bet(self: Workflow) -> None:
 
         logger.log(place_bet_result)
 
-    raise BotError('Place Bet Fail (last try result: {place_bet_result})', ErrorType.PLACE_BET_FAILED)
+    raise BotError(f'Place Bet Fail (last try result: {place_bet_result})', ErrorType.PLACE_BET_FAILED)
