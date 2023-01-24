@@ -81,6 +81,14 @@ pms_data = {
             'NO': 'No',
         },
     },
+    'NEXT GOAL': {
+        'FULLTIME': 'Next Goal',
+        'selections': {
+            'WIN1': '[$T1] to score',
+            'NO': 'No',
+            'WIN2': '[$T2] to score',
+        },
+    },
 }
 
 def handle_template(template: str, team1: str, team2: str, parameter: Optional[str], score: str) -> str:

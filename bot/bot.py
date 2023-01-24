@@ -17,7 +17,7 @@ class Bot:
     settings: Settings
     browser: Browser
     control: Control
-    bot_version = '2.0.50'
+    bot_version = '2.0.51'
     
     ebet_auth_token: str
     first_launch: bool
