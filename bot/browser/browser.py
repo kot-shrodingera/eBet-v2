@@ -37,11 +37,14 @@ class Browser:
         diff = end_time - start_time
         log(f'Created (took {diff.seconds}.{diff.microseconds // 1000:03}s)')
 
-    def run_js_function(self, function: str, args: List[js_argument] = [], returnByValue: bool = False, awaitPromise: bool = False) -> Any:
+    def run_js_function(self, function: str, args: List[js_argument] = [], returnByValue: bool = False, awaitPromise: bool = False, globalContext: bool = False) -> Any:
         args_string = ', '.join(map(Browser._stringify_js_argument, args))
         expression = f'({function})({args_string})'
         # TODO: self.crdi.world_id check
-        return self.crdi.Runtime_evaluate(expression=expression, contextId=self.crdi.world_id, returnByValue=returnByValue, awaitPromise=awaitPromise)
+        if globalContext:
+            return self.crdi.Runtime_evaluate(expression=expression, returnByValue=returnByValue, awaitPromise=awaitPromise)
+        else:
+            return self.crdi.Runtime_evaluate(expression=expression, contextId=self.crdi.world_id, returnByValue=returnByValue, awaitPromise=awaitPromise)
 
     def go_to_url(self, url: str) -> None:
         # self.crdi.Runtime_evaluate(expression=f'if (window.location.href !== "{url}") window.location.href = "{url}"')
