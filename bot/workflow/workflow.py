@@ -152,7 +152,7 @@ class Workflow:
                     steps.set_target_bet(self)
                     if not self.target_bet:
                         if not self.settings.disable_refresh_balance:
-                            bet365.refresh_balance(self.browser)
+                            bet365.refresh_balance(self.browser, self.settings.js_refresh_balance)
                         continue
                     
                     steps.calculate_stake_value(self)
@@ -203,7 +203,7 @@ class Workflow:
                         sleep(1)
 
                 if not self.settings.disable_refresh_balance:
-                    bet365.refresh_balance(self.browser)
+                    bet365.refresh_balance(self.browser, self.settings.js_refresh_balance)
                 self.last_error = None
             
             except Exception as error:

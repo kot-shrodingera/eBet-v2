@@ -33,6 +33,7 @@ class Settings:
     dont_pause_stream: bool
     strict_bet_name_check: bool
     disable_refresh_balance: bool
+    js_refresh_balance: bool
     show_click_coords: bool
     narrow_click_coords: float
     js_scroll: bool
@@ -108,6 +109,7 @@ class Settings:
         set_property('dont_pause_stream', 'dont_pause_stream', bool, default=False)
         set_property('strict_bet_name_check', 'strict_bet_name_check', bool, default=False)
         set_property('disable_refresh_balance', 'disable_refresh_balance', bool, default=False)
+        set_property('js_refresh_balance', 'js_refresh_balance', bool, default=False)
         set_property('show_click_coords', 'show_click_coords', bool, default=False)
         set_property('narrow_click_coords', 'narrow_click_coords', float, default=1) # TODO: validate [0.0 - 1.0]
         set_property('js_scroll', 'js_scroll', bool, default=False)
