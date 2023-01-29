@@ -17,7 +17,7 @@ class Bot:
     settings: Settings
     browser: Browser
     control: Control
-    bot_version = '2.0.53'
+    bot_version = '2.0.54'
     
     ebet_auth_token: str
     first_launch: bool
@@ -29,7 +29,8 @@ class Bot:
     def __init__(self, settings__file_name: str) -> None:
         self.settings = Settings(settings__file_name)
         self.control = Control()
-        self.first_launch = not os.path.exists(f'./profiles/{self.settings.username}')
+        # self.first_launch = not os.path.exists(f'./profiles/{self.settings.username}')
+        self.first_launch = True
         
         query_data = {
             'api[method]': 'auth',
@@ -66,31 +67,44 @@ class Bot:
                 if self.first_launch:
                     self.first_launch = False
                     logger.header('First Launch')
-                    
-                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml')
-                    logger.log('1) Install WebRTC Leak Prevent extension')
-                    logger.log('2) Set last option (IP handling policy: Disable non-proxied UDP (force proxy))')
-                    logger.log('3) Close extension settings modal')
-                    logger.log('4) Close extension settings chrome tab')
+                    query_data = {
+                        'api[method]': 'start_page',
+                        'api[version]': '1',
+                        'api_key': self.settings.api_key,
+                        'password': self.settings.api_password,
+                        'bot_version': self.bot_version,
+                    }
+                    query_string = urllib.parse.urlencode(query_data)
+                    self.browser.crdi.get(f'http://bvb.strike.ws/_router.php?{query_string}')
                     logger.log('Press Enter to continue, or type q to quit')
                     choice = input()
                     if choice.lower() == 'q':
                         return
                     
-                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/disable-html5-autoplay-re/cafckninonjkogajnihihlnnimmkndgf')
-                    logger.log('1) Install Disable HTML5 Autoplay extension')
-                    logger.log('Press Enter to continue, or type q to quit')
-                    choice = input()
-                    if choice.lower() == 'q':
-                        return
+                    # self.browser.crdi.get('https://chrome.google.com/webstore/detail/webrtc-leak-prevent/eiadekoaikejlgdbkbdfeijglgfdalml')
+                    # logger.log('1) Install WebRTC Leak Prevent extension')
+                    # logger.log('2) Set last option (IP handling policy: Disable non-proxied UDP (force proxy))')
+                    # logger.log('3) Close extension settings modal')
+                    # logger.log('4) Close extension settings chrome tab')
+                    # logger.log('Press Enter to continue, or type q to quit')
+                    # choice = input()
+                    # if choice.lower() == 'q':
+                    #     return
                     
-                    self.browser.crdi.get('https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif/related')
-                    logger.log('1) Install Proxy SwitchyOmega extension [if needed]')
-                    logger.log('1) Setup proxy [if needed]')
-                    logger.log('Press Enter to continue, or type q to quit')
-                    choice = input()
-                    if choice.lower() == 'q':
-                        return
+                    # self.browser.crdi.get('https://chrome.google.com/webstore/detail/disable-html5-autoplay-re/cafckninonjkogajnihihlnnimmkndgf')
+                    # logger.log('1) Install Disable HTML5 Autoplay extension')
+                    # logger.log('Press Enter to continue, or type q to quit')
+                    # choice = input()
+                    # if choice.lower() == 'q':
+                    #     return
+                    
+                    # self.browser.crdi.get('https://chrome.google.com/webstore/detail/proxy-switchyomega/padekgcemlokbadohgkifijomclgjgif/related')
+                    # logger.log('1) Install Proxy SwitchyOmega extension [if needed]')
+                    # logger.log('1) Setup proxy [if needed]')
+                    # logger.log('Press Enter to continue, or type q to quit')
+                    # choice = input()
+                    # if choice.lower() == 'q':
+                    #     return
                 if self.settings.dev:
                     logger.log('Dev Run')
                     Workflow(self.settings, self.ebet_auth_token, self.browser, self.control, self.bot_version, self.start_time, self.placed_bets_count, self.bets_tries_count).dev()
