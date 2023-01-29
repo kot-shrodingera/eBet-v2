@@ -17,7 +17,7 @@ def update_stats(self: Workflow) -> None:
     try:
         query_data = {
             'api[method]': 'get_forks',
-            'api[version]': '2',
+            'api[version]': '4',
             'bot_version': self.bot_version,
         }
         query_string = urllib.parse.urlencode(query_data)
@@ -31,7 +31,7 @@ def update_stats(self: Workflow) -> None:
             'data[is_restrict]': (None, '1' if self.restrict else '0'),
             'data[dont_get_forks]': (None, '1'),
         }
-        bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
+        bets_request_url = f'http://bvb.strike.ws/_router.php?{query_string}'
         response = requests.post(bets_request_url, files=request_data, timeout=65)
         logger.log('Done')
     except requests.Timeout:

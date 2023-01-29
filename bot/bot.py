@@ -39,7 +39,7 @@ class Bot:
             'bot_version': self.bot_version,
         }
         query_string = urllib.parse.urlencode(query_data)
-        response = requests.get(f'http://bvb.strike.ws/bot/index.php?{query_string}').json()
+        response = requests.get(f'http://bvb.strike.ws/_router.php?{query_string}').json()
         if 'data' not in response or 'token' not in response['data']:
             raise Exception('No token in eBet auth response')
         self.ebet_auth_token = response['data']['token']
