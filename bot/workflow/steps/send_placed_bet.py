@@ -30,4 +30,4 @@ def send_placed_bet(self: Workflow) -> None:
         'bot_version': self.bot_version,
         'traders_accepted_amount': self.traders_accepted_amount
     }
-    requests.post(f'http://bvb.strike.ws/_router.php?{query_string}', json=json)
+    requests.post(f'http://bvb.strike.ws/botiq/_router.php?{query_string}', json=json)
