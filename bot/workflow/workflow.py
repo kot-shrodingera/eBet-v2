@@ -155,15 +155,11 @@ class Workflow:
                             bet365.refresh_balance(self.browser, self.settings.js_refresh_balance)
                         continue
                     
-                    steps.calculate_stake_value(self)
-                    
-                    current_balance = bet365.get_balance(self.browser)
-                    if current_balance['balance'] < self.target_stake_value:
-                        raise BotError('Balance is less than target stake value', ErrorType.STAKE_IS_HIGHER_THAN_BALANCE)
-                    
                     steps.open_event(self)
                     
                     steps.open_selection(self)
+                    
+                    steps.calculate_stake_value(self)
                     
                     if self.warm_up:
                         self.warm_up_bets_count += 1

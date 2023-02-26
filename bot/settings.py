@@ -16,6 +16,7 @@ class Settings:
     bet365_url: str
     stake: float
     stake_type: str
+    stake_min: float
     stake_max: Optional[float]
     
     max_same_bets_count: int
@@ -92,6 +93,7 @@ class Settings:
         set_property('bet365_url', 'bet365_url', default='https://www.bet365.com/') # TODO: URL validation
         set_property('stake', 'stake', float)
         set_property('stake_type', 'stake_type', default='fixed') # TODO: validation ['fixed', 'percent']
+        set_property('stake_min', 'stake_max', float, default=0.2)
         set_property('stake_max', 'stake_max', float, required=False)
         
         set_property('max_same_bets_count', 'max_same_bets_count', int)
