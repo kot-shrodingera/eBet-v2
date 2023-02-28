@@ -7,4 +7,5 @@ __pycache__
 settings.ini
 control
 versions
+releases
 current_version
