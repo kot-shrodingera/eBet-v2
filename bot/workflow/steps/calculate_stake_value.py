@@ -14,15 +14,15 @@ def calculate_stake_value(self: Workflow) -> None:
     elif self.settings.stake_type == 'fixed_win':
         balance = bet365.get_balance(self.browser)
         current_coefficient = bet365.get_coefficient(self.browser)
-        base_target_stake_value = round(self.settings.stake / current_coefficient, 2)
-        logger.log(f'Base Target Stake Value (fixed_win): {self.settings.stake} / {current_coefficient} = {base_target_stake_value}')
+        base_target_stake_value = round(self.settings.stake / (current_coefficient - 1), 2)
+        logger.log(f'Base Target Stake Value (fixed_win): {self.settings.stake} / ({current_coefficient} - 1) = {base_target_stake_value}')
     elif self.settings.stake_type == 'percent_win':
         balance = bet365.get_balance(self.browser)
         target_win = round(balance['balance'] * self.settings.stake / 100, 2)
         logger.log(f'Target Win (percent_win): {balance["balance"]} * {self.settings.stake / 100} = {target_win}')
         current_coefficient = bet365.get_coefficient(self.browser)
-        base_target_stake_value = round(target_win / current_coefficient, 2)
-        logger.log(f'Base Target Stake Value (percent_win): {target_win} / {current_coefficient} = {base_target_stake_value}')
+        base_target_stake_value = round(target_win / (current_coefficient - 1), 2)
+        logger.log(f'Base Target Stake Value (percent_win): {target_win} / ({current_coefficient} - 1 = {base_target_stake_value}')
     else:
         raise BotError(f'Unknown stake type: {self.settings.stake_type}', ErrorType.UNKNOWN_STAKE_TYPE_IN_SETTINGS)
     
