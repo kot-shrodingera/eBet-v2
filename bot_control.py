@@ -128,10 +128,17 @@ def get_last_version(api_key, api_password) -> str:
     else:
         raise Exception('No last version in response')
 
-def download_version(version: str) -> None:
-    get_bot_url = f'http://bvb.strike.ws/bot/soft/bot_versions/{version}.zip'
-    bor_response = requests.get(get_bot_url)
-    zip_file = ZipFile(BytesIO(bor_response.content))
+def download_version(version: str, api_key: str, api_password: str) -> None:
+    query_data = {
+        'api[method]': 'download_bot',
+        'api[version]': '1',
+        'api_key': api_key,
+        'password': api_password,
+    }
+    query_string = urllib.parse.urlencode(query_data)
+    get_bot_url = f'http://bvb.strike.ws/bot/soft/get_bot_files.php?{query_string}'
+    get_bot_response = requests.get(get_bot_url)
+    zip_file = ZipFile(BytesIO(get_bot_response.content))
     path = f'./versions/{version}'
     if os.path.exists(path):
         print(f'Path {path} already exists. Overwriting')
@@ -158,7 +165,7 @@ def main() -> None:
         print('[R] Run Bot [U] Update Bot [Q] Quit')
         key = get_key(['r', 'u', 'q'], 0)
         if key == 'u':
-            download_version(last_version)
+            download_version(last_version, api_key, api_password)
             set_current_version(last_version)
             current_version = get_current_version()
             print('Press any key to continue')
