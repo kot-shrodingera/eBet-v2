@@ -31,7 +31,7 @@ def update_stats(self: Workflow) -> None:
             'data[is_restrict]': (None, '1' if self.restrict else '0'),
             'data[dont_get_forks]': (None, '1'),
         }
-        bets_request_url = f'http://bvb.strike.ws/botiq/_router.php?{query_string}'
+        bets_request_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
         response = requests.post(bets_request_url, files=request_data, timeout=65)
         logger.log('Done')
     except requests.Timeout:
