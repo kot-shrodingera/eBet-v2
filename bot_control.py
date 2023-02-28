@@ -134,9 +134,10 @@ def download_version(version: str, api_key: str, api_password: str) -> None:
         'api[version]': '1',
         'api_key': api_key,
         'password': api_password,
+        'download_version': version
     }
     query_string = urllib.parse.urlencode(query_data)
-    get_bot_url = f'http://bvb.strike.ws/bot/soft/get_bot_files.php?{query_string}'
+    get_bot_url = f'http://bvb.strike.ws/bot/index.php?{query_string}'
     get_bot_response = requests.get(get_bot_url)
     zip_file = ZipFile(BytesIO(get_bot_response.content))
     path = f'./versions/{version}'
