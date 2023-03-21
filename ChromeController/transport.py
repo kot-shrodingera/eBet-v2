@@ -128,7 +128,7 @@ class ChromeExecutionManager():
 
 		for candidate in possible_chrome_locations:
 			if os.path.exists(candidate):
-				launch_arguments = [candidate, f'--remote-debugging-port={self.port}', profile_folder]
+				launch_arguments = [candidate, f'--remote-debugging-port={self.port}', '--remote-allow-origins=*', profile_folder]
 				if self.start_maximised:
 					launch_arguments.append('--start-maximized')
 				if self.additional_options:
